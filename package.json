@@ -12,10 +12,10 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.2",
-    "better-sqlite3": "^9.4.3",
+    "pg": "^8.12.0",
     "bcrypt": "^5.1.1",
     "express-session": "^1.17.3",
-    "connect-sqlite3": "^0.9.15",
+    "connect-pg-simple": "^9.0.1",
     "dotenv": "^16.3.1"
   },
   "devDependencies": {

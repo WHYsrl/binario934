@@ -1,6 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
-const db = require('../db/database');
+const { pool } = require('../db/database');
 const router = express.Router();
 
 // Register
@@ -15,15 +15,20 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'La password deve avere almeno 6 caratteri' });
     }
 
-    const existing = db.prepare('SELECT id FROM users WHERE username = ? OR email = ?').get(username, email);
-    if (existing) {
+    const existing = await pool.query(
+      'SELECT id FROM users WHERE username = $1 OR email = $2', [username, email]
+    );
+    if (existing.rows.length > 0) {
       return res.status(400).json({ error: 'Username o email già in uso' });
     }
 
     const hash = await bcrypt.hash(password, 10);
-    const result = db.prepare('INSERT INTO users (username, email, password) VALUES (?, ?, ?)').run(username, email, hash);
+    const result = await pool.query(
+      'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id',
+      [username, email, hash]
+    );
 
-    req.session.user = { id: result.lastInsertRowid, username, email, house: null };
+    req.session.user = { id: result.rows[0].id, username, email, house: null };
     res.json({ success: true, user: req.session.user });
   } catch (err) {
     console.error('Register error:', err);
@@ -36,7 +41,11 @@ router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    const user = db.prepare('SELECT * FROM users WHERE username = ? OR email = ?').get(username, username);
+    const result = await pool.query(
+      'SELECT * FROM users WHERE username = $1 OR email = $1', [username]
+    );
+    const user = result.rows[0];
+
     if (!user) {
       return res.status(401).json({ error: 'Credenziali non valide' });
     }
@@ -71,7 +80,7 @@ router.get('/me', (req, res) => {
 });
 
 // Update house after sorting hat
-router.post('/house', (req, res) => {
+router.post('/house', async (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ error: 'Devi essere loggato' });
   }
@@ -81,7 +90,7 @@ router.post('/house', (req, res) => {
     return res.status(400).json({ error: 'Casa non valida' });
   }
 
-  db.prepare('UPDATE users SET house = ? WHERE id = ?').run(house, req.session.user.id);
+  await pool.query('UPDATE users SET house = $1 WHERE id = $2', [house, req.session.user.id]);
   req.session.user.house = house;
   res.json({ success: true, house });
 });

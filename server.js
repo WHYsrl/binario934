@@ -1,8 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
-const SQLiteStore = require('connect-sqlite3')(session);
+const pgSession = require('connect-pg-simple')(session);
 const path = require('path');
+const { pool, initDB } = require('./db/database');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,14 +13,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Sessions
+// Sessions with PostgreSQL store
 app.use(session({
-  store: new SQLiteStore({ db: 'sessions.db', dir: __dirname }),
+  store: new pgSession({
+    pool: pool,
+    tableName: 'session',
+    createTableIfMissing: false
+  }),
   secret: process.env.SESSION_SECRET || 'binario-9-e-tre-quarti-secret',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production'
   }
@@ -47,6 +52,9 @@ app.get('/cappello', (req, res) => res.sendFile(path.join(__dirname, 'views', 'c
 app.get('/classifiche', (req, res) => res.sendFile(path.join(__dirname, 'views', 'classifiche.html')));
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'views', 'login.html')));
 
-app.listen(PORT, () => {
-  console.log(`🧙 Binario 9 e 3/4 attivo su http://localhost:${PORT}`);
+// Init DB then start server
+initDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🧙 Binario 9 e 3/4 attivo su http://localhost:${PORT}`);
+  });
 });

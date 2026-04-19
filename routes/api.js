@@ -1,9 +1,9 @@
 const express = require('express');
-const db = require('../db/database');
+const { pool } = require('../db/database');
 const router = express.Router();
 
 // Save score
-router.post('/scores', (req, res) => {
+router.post('/scores', async (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ error: 'Devi essere loggato per salvare il punteggio' });
   }
@@ -15,14 +15,16 @@ router.post('/scores', (req, res) => {
     return res.status(400).json({ error: 'Tipo di gioco non valido' });
   }
 
-  db.prepare('INSERT INTO scores (user_id, game_type, score, time_seconds) VALUES (?, ?, ?, ?)')
-    .run(req.session.user.id, game_type, score, time_seconds || null);
+  await pool.query(
+    'INSERT INTO scores (user_id, game_type, score, time_seconds) VALUES ($1, $2, $3, $4)',
+    [req.session.user.id, game_type, score, time_seconds || null]
+  );
 
   res.json({ success: true });
 });
 
 // Get leaderboard
-router.get('/classifiche/:game_type', (req, res) => {
+router.get('/classifiche/:game_type', async (req, res) => {
   const { game_type } = req.params;
   const validGames = ['crucipuzzle', 'cruciverba', 'quiz'];
 
@@ -30,45 +32,45 @@ router.get('/classifiche/:game_type', (req, res) => {
     return res.status(400).json({ error: 'Tipo di gioco non valido' });
   }
 
-  const scores = db.prepare(`
+  const result = await pool.query(`
     SELECT s.score, s.time_seconds, s.played_at, u.username, u.house
     FROM scores s
     JOIN users u ON s.user_id = u.id
-    WHERE s.game_type = ?
+    WHERE s.game_type = $1
     ORDER BY s.score DESC, s.time_seconds ASC
     LIMIT 50
-  `).all(game_type);
+  `, [game_type]);
 
-  res.json(scores);
+  res.json(result.rows);
 });
 
 // Get user's personal best scores
-router.get('/my-scores', (req, res) => {
+router.get('/my-scores', async (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ error: 'Non loggato' });
   }
 
-  const scores = db.prepare(`
+  const result = await pool.query(`
     SELECT game_type, MAX(score) as best_score, COUNT(*) as times_played
     FROM scores
-    WHERE user_id = ?
+    WHERE user_id = $1
     GROUP BY game_type
-  `).all(req.session.user.id);
+  `, [req.session.user.id]);
 
-  res.json(scores);
+  res.json(result.rows);
 });
 
 // House statistics
-router.get('/houses', (req, res) => {
-  const stats = db.prepare(`
+router.get('/houses', async (req, res) => {
+  const result = await pool.query(`
     SELECT house, COUNT(*) as members
     FROM users
     WHERE house IS NOT NULL
     GROUP BY house
     ORDER BY members DESC
-  `).all();
+  `);
 
-  res.json(stats);
+  res.json(result.rows);
 });
 
 module.exports = router;

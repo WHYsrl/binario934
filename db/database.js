@@ -1,36 +1,52 @@
-const Database = require('better-sqlite3');
-const path = require('path');
+const { Pool } = require('pg');
 
-const dbPath = path.join(__dirname, '..', 'binario934.db');
-const db = new Database(dbPath);
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
 
-// Enable WAL mode for better performance
-db.pragma('journal_mode = WAL');
+// Create tables on startup
+async function initDB() {
+  const client = await pool.connect();
+  try {
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        email VARCHAR(100) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        house VARCHAR(20) DEFAULT NULL,
+        avatar VARCHAR(255) DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
 
-// Create tables
-db.exec(`
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE NOT NULL,
-    email TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL,
-    house TEXT DEFAULT NULL,
-    avatar TEXT DEFAULT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
+      CREATE TABLE IF NOT EXISTS scores (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES users(id),
+        game_type VARCHAR(20) NOT NULL CHECK(game_type IN ('crucipuzzle', 'cruciverba', 'quiz')),
+        score INTEGER NOT NULL,
+        time_seconds INTEGER DEFAULT NULL,
+        played_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
 
-  CREATE TABLE IF NOT EXISTS scores (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    game_type TEXT NOT NULL CHECK(game_type IN ('crucipuzzle', 'cruciverba', 'quiz')),
-    score INTEGER NOT NULL,
-    time_seconds INTEGER DEFAULT NULL,
-    played_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-  );
+      CREATE INDEX IF NOT EXISTS idx_scores_game ON scores(game_type, score DESC);
+      CREATE INDEX IF NOT EXISTS idx_scores_user ON scores(user_id);
 
-  CREATE INDEX IF NOT EXISTS idx_scores_game ON scores(game_type, score DESC);
-  CREATE INDEX IF NOT EXISTS idx_scores_user ON scores(user_id);
-`);
+      CREATE TABLE IF NOT EXISTS session (
+        sid VARCHAR NOT NULL COLLATE "default",
+        sess JSON NOT NULL,
+        expire TIMESTAMP(6) NOT NULL,
+        PRIMARY KEY (sid)
+      );
 
-module.exports = db;
+      CREATE INDEX IF NOT EXISTS idx_session_expire ON session(expire);
+    `);
+    console.log('Database tables ready');
+  } catch (err) {
+    console.error('DB init error:', err);
+  } finally {
+    client.release();
+  }
+}
+
+module.exports = { pool, initDB };
