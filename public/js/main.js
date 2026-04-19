@@ -41,7 +41,11 @@ async function logout(e) {
   window.location.reload();
 }
 
+let navSetupDone = false;
 function setupNav() {
+  if (navSetupDone) return;
+  navSetupDone = true;
+
   const toggle = document.querySelector('.nav-toggle');
   const navList = document.querySelector('.nav-list');
 

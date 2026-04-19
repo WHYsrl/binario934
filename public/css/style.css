@@ -598,8 +598,8 @@ body {
 }
 
 .word-grid .cell.found {
-  background: rgba(26,71,42,0.25);
-  color: var(--green-slytherin);
+  background: #d4edda;
+  color: #155724;
 }
 
 .word-list {
@@ -680,12 +680,18 @@ body {
   pointer-events: none;
 }
 
+.crossword-grid .cell.correct {
+  background: #d4edda;
+}
 .crossword-grid .cell.correct input {
-  color: var(--green-slytherin);
+  color: #155724;
 }
 
+.crossword-grid .cell.wrong {
+  background: #f8d7da;
+}
 .crossword-grid .cell.wrong input {
-  color: var(--red-gryffindor);
+  color: #721c24;
 }
 
 .clues-container {
@@ -1156,10 +1162,10 @@ body {
 
 /* Word found animation for crucipuzzle */
 .word-grid .cell.found {
-  background: rgba(26,71,42,0.35);
-  color: var(--green-slytherin);
+  background: #d4edda;
+  color: #155724;
   font-weight: 900;
-  text-shadow: 0 0 2px rgba(26,71,42,0.5);
+  text-shadow: none;
 }
 
 /* Highlighted clue item */
@@ -1185,7 +1191,7 @@ body {
 }
 
 .crossword-grid .cell.highlighted {
-  background: rgba(201,168,76,0.2);
+  background: rgba(201,168,76,0.3);
 }
 
 /* Celebration sparkles */
