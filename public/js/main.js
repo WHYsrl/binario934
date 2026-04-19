@@ -22,10 +22,15 @@ async function checkAuth() {
         authLink.href = '/profilo';
         authLink.onclick = null;
       }
+    } else {
+      window.currentUser = null;
     }
   } catch (e) {
+    window.currentUser = null;
     console.log('Auth check failed');
   }
+  // Signal that auth check is complete
+  window.dispatchEvent(new Event('authReady'));
 }
 
 async function logout(e) {

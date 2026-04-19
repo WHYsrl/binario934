@@ -114,7 +114,15 @@ body {
   margin-bottom: 5px;
 }
 
-.logo-container img {
+.logo-container .header-desktop {
+  max-width: 100%;
+  height: auto;
+  max-height: 140px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.logo-container .header-mobile {
+  display: none;
   height: 120px;
   width: auto;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
@@ -1304,7 +1312,8 @@ body {
     padding: 20px 15px;
   }
 
-  .logo-container img { height: 80px; }
+  .logo-container .header-desktop { display: none; }
+  .logo-container .header-mobile { display: inline-block; height: 80px; }
 
   .clues-container {
     grid-template-columns: 1fr;
