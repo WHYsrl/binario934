@@ -78,5 +78,34 @@
   <script src="/js/main.js"></script>
   <script src="/js/audio.js"></script>
   <script src="/js/cappello.js"></script>
+  <script>
+    // Show house assignment notice if user already has a house
+    window.addEventListener('authReady', () => {
+      const user = window.currentUser;
+      if (!user || !user.house) return;
+
+      const houseLower = user.house.toLowerCase();
+      const colors = {
+        grifondoro: '#740001',
+        serpeverde: '#1a472a',
+        corvonero: '#0e1a40',
+        tassorosso: '#ecb939'
+      };
+      const color = colors[houseLower] || '#4a2c10';
+
+      const container = document.querySelector('.sorting-container');
+      if (!container) return;
+
+      const notice = document.createElement('div');
+      notice.style.cssText = 'text-align:center;padding:20px 15px;margin-bottom:20px;background:rgba(255,248,230,0.7);border:2px solid ' + color + ';border-radius:10px;';
+      notice.innerHTML = `
+        <img src="/images/houses/${houseLower}.png" alt="${user.house}"
+          style="width:90px;height:90px;border-radius:50%;border:3px solid ${color};margin-bottom:10px;">
+        <h3 style="color:${color};margin-bottom:6px;font-family:Cinzel,serif;font-size:1.1rem;">Il Cappello Parlante ti ha assegnato a ${user.house}</h3>
+        <p style="font-family:Lora,serif;color:#6b4e2e;font-style:italic;font-size:0.9rem;margin-top:8px;">Vuoi interpellare di nuovo il Cappello Parlante?</p>
+      `;
+      container.insertBefore(notice, container.firstChild);
+    });
+  </script>
 </body>
 </html>
