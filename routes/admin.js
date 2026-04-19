@@ -210,6 +210,88 @@ router.post('/word-sets/import', requireAdmin, async (req, res) => {
   }
 });
 
+// ===== CRUCIVERBA Puzzle Management =====
+
+// Get all crossword puzzles
+router.get('/cruciverba-puzzles', requireAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM crossword_puzzles ORDER BY created_at DESC'
+    );
+    const puzzles = result.rows.map(r => ({
+      ...r,
+      words: JSON.parse(r.words)
+    }));
+    res.json({ puzzles });
+  } catch (err) {
+    console.error('Admin cruciverba puzzles error:', err);
+    res.status(500).json({ error: 'Errore nel caricamento' });
+  }
+});
+
+// Create a crossword puzzle
+router.post('/cruciverba-puzzles', requireAdmin, async (req, res) => {
+  try {
+    const { theme, rows, cols, words } = req.body;
+
+    if (!theme || !rows || !cols || !words || !Array.isArray(words)) {
+      return res.status(400).json({ error: 'Dati incompleti' });
+    }
+
+    if (rows < 3 || rows > 30 || cols < 3 || cols > 30) {
+      return res.status(400).json({ error: 'Dimensioni griglia non valide (3-30)' });
+    }
+
+    if (words.length === 0) {
+      return res.status(400).json({ error: 'Inserisci almeno una parola' });
+    }
+
+    const result = await pool.query(
+      'INSERT INTO crossword_puzzles (theme, rows, cols, words) VALUES ($1, $2, $3, $4) RETURNING *',
+      [theme, rows, cols, JSON.stringify(words)]
+    );
+
+    res.json({ success: true, puzzle: result.rows[0] });
+  } catch (err) {
+    console.error('Admin create cruciverba error:', err);
+    res.status(500).json({ error: 'Errore nel salvataggio' });
+  }
+});
+
+// Update a crossword puzzle
+router.put('/cruciverba-puzzles/:id', requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { theme, rows, cols, words, active } = req.body;
+
+    if (!theme || !rows || !cols || !words) {
+      return res.status(400).json({ error: 'Dati incompleti' });
+    }
+
+    await pool.query(
+      'UPDATE crossword_puzzles SET theme = $1, rows = $2, cols = $3, words = $4, active = $5 WHERE id = $6',
+      [theme, rows, cols, JSON.stringify(Array.isArray(words) ? words : JSON.parse(words)), active !== false, id]
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Admin update cruciverba error:', err);
+    res.status(500).json({ error: 'Errore nell\'aggiornamento' });
+  }
+});
+
+// Delete a crossword puzzle
+router.delete('/cruciverba-puzzles/:id', requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query('DELETE FROM crossword_puzzles WHERE id = $1', [id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Admin delete cruciverba error:', err);
+    res.status(500).json({ error: 'Errore nell\'eliminazione' });
+  }
+});
+
 // ===== QUIZ Question Management =====
 
 // Get all quiz questions (from DB only)

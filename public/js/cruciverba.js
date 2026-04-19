@@ -17,7 +17,7 @@ let gameComplete = false;
 
 async function initCruciverba() {
   try {
-    const res = await fetch('/data/cruciverba-data.json');
+    const res = await fetch('/api/cruciverba-puzzles');
     puzzles = await res.json();
   } catch (e) {
     console.error('Failed to load crossword data:', e);
@@ -51,19 +51,19 @@ function loadNewPuzzle() {
 // ---- Grid building ----
 
 function buildGrid() {
-  const size = currentPuzzle.size;
-  grid = Array.from({ length: size }, () => Array(size).fill(null));
+  const rows = currentPuzzle.rows || currentPuzzle.size;
+  const cols = currentPuzzle.cols || currentPuzzle.size;
+  grid = Array.from({ length: rows }, () => Array(cols).fill(null));
 
   for (const w of currentPuzzle.words) {
     const letters = w.word.split('');
     for (let i = 0; i < letters.length; i++) {
       const r = w.direction === 'down' ? w.row + i : w.row;
       const c = w.direction === 'across' ? w.col + i : w.col;
-      if (r < size && c < size) {
+      if (r < rows && c < cols) {
         if (!grid[r][c]) {
           grid[r][c] = { letter: letters[i].toUpperCase(), number: null };
         }
-        // Intersection: letter must match (validated in data)
       }
     }
     if (grid[w.row] && grid[w.row][w.col]) {
@@ -78,11 +78,12 @@ function renderGrid() {
   const container = document.getElementById('crossword-grid');
   container.innerHTML = '';
   container.classList.add('crossword-grid');
-  const size = currentPuzzle.size;
-  container.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+  const rows = currentPuzzle.rows || currentPuzzle.size;
+  const cols = currentPuzzle.cols || currentPuzzle.size;
+  container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
 
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c < size; c++) {
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
       const cell = document.createElement('div');
       if (!grid[r][c]) {
         cell.className = 'cell black';
@@ -217,28 +218,30 @@ function onCellFocus(e) {
 }
 
 function moveTo(r, c) {
-  const size = currentPuzzle.size;
-  if (r >= 0 && r < size && c >= 0 && c < size && grid[r][c]) {
+  const rows = currentPuzzle.rows || currentPuzzle.size;
+  const cols = currentPuzzle.cols || currentPuzzle.size;
+  if (r >= 0 && r < rows && c >= 0 && c < cols && grid[r][c]) {
     const input = getInput(r, c);
     if (input) input.focus();
   }
 }
 
 function moveToNext(r, c) {
-  const size = currentPuzzle.size;
+  const rows = currentPuzzle.rows || currentPuzzle.size;
+  const cols = currentPuzzle.cols || currentPuzzle.size;
   if (currentDirection === 'across') {
-    for (let nc = c + 1; nc < size; nc++) {
+    for (let nc = c + 1; nc < cols; nc++) {
       if (grid[r][nc]) { moveTo(r, nc); return; }
     }
   } else {
-    for (let nr = r + 1; nr < size; nr++) {
+    for (let nr = r + 1; nr < rows; nr++) {
       if (grid[nr][c]) { moveTo(nr, c); return; }
     }
   }
 }
 
 function moveToPrev(r, c) {
-  const size = currentPuzzle.size;
+  const cols = currentPuzzle.cols || currentPuzzle.size;
   if (currentDirection === 'across') {
     for (let nc = c - 1; nc >= 0; nc--) {
       if (grid[r][nc]) { moveTo(r, nc); return; }
@@ -298,14 +301,15 @@ function onClueClick(w) {
 // ---- Check Answers ----
 
 function checkAnswers() {
-  const size = currentPuzzle.size;
+  const rows = currentPuzzle.rows || currentPuzzle.size;
+  const cols = currentPuzzle.cols || currentPuzzle.size;
   let allCorrect = true;
   let filledCount = 0;
   let correctCount = 0;
   let totalWhite = 0;
 
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c < size; c++) {
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
       if (!grid[r][c]) continue;
       totalWhite++;
       const input = getInput(r, c);

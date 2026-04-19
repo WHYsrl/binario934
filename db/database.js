@@ -59,8 +59,39 @@ async function initDB() {
         active BOOLEAN DEFAULT true,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+
+      CREATE TABLE IF NOT EXISTS crossword_puzzles (
+        id SERIAL PRIMARY KEY,
+        theme VARCHAR(200) NOT NULL,
+        rows INTEGER NOT NULL DEFAULT 13,
+        cols INTEGER NOT NULL DEFAULT 13,
+        words TEXT NOT NULL,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
     `);
     console.log('Database tables ready');
+
+    // Auto-import crossword puzzles from JSON if DB table is empty
+    try {
+      const cwCountRes = await client.query('SELECT COUNT(*) as c FROM crossword_puzzles');
+      if (parseInt(cwCountRes.rows[0].c) === 0) {
+        const cwJsonPath = path.join(__dirname, '..', 'data', 'cruciverba-data.json');
+        const cwData = fs.readFileSync(cwJsonPath, 'utf-8');
+        const puzzles = JSON.parse(cwData);
+        if (puzzles.length > 0) {
+          for (const p of puzzles) {
+            await client.query(
+              'INSERT INTO crossword_puzzles (theme, rows, cols, words) VALUES ($1, $2, $3, $4)',
+              [p.theme, p.size, p.size, JSON.stringify(p.words)]
+            );
+          }
+          console.log(`Imported ${puzzles.length} crossword puzzles from JSON to DB`);
+        }
+      }
+    } catch (e) {
+      if (e.code !== 'ENOENT') console.error('Crossword import note:', e.message);
+    }
 
     // Auto-import quiz questions from JSON if DB table is empty
     try {

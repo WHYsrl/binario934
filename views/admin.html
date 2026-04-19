@@ -230,6 +230,91 @@
       accent-color: #1a472a;
     }
     .quiz-option-row label { margin: 0; font-size: 0.8rem; }
+
+    /* Cruciverba Builder */
+    .cw-tool.active { background: #c9a84c !important; color: #fff !important; border-color: #c9a84c !important; }
+    .cw-grid {
+      display: inline-grid;
+      gap: 0;
+      border: 2px solid #4a2c10;
+      background: #4a2c10;
+    }
+    .cw-cell {
+      width: 36px;
+      height: 36px;
+      background: #fff;
+      border: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #2a1a0a;
+      user-select: none;
+    }
+    .cw-cell:hover { background: #fff8e6; }
+    .cw-cell.black { background: #2a1a0a; cursor: pointer; }
+    .cw-cell.black:hover { background: #4a2c10; }
+    .cw-cell.invisible { background: transparent; border-color: transparent; cursor: pointer; }
+    .cw-cell.invisible:hover { background: rgba(201,168,76,0.1); border-color: rgba(201,168,76,0.3); }
+    .cw-cell .cw-num {
+      position: absolute;
+      top: 1px;
+      left: 2px;
+      font-size: 0.55rem;
+      color: #740001;
+      font-weight: bold;
+    }
+    .cw-cell .cw-letter {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+    }
+    .cw-cell.selected { outline: 3px solid #c9a84c; z-index: 1; }
+    .cw-cell.preview { background: rgba(201,168,76,0.25); }
+
+    .cw-word-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background: rgba(255,248,230,0.6);
+      border: 1px solid rgba(201,168,76,0.25);
+      border-radius: 6px;
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+    }
+    .cw-word-item .cw-word-num {
+      font-family: Cinzel, serif;
+      font-weight: bold;
+      color: #740001;
+      min-width: 25px;
+    }
+    .cw-word-item .cw-word-dir {
+      font-size: 0.7rem;
+      color: #6b4e2e;
+      min-width: 20px;
+    }
+    .cw-word-item .cw-word-text {
+      font-weight: bold;
+      color: #2a1a0a;
+      min-width: 80px;
+    }
+    .cw-word-item .cw-word-clue {
+      flex: 1;
+      color: #6b4e2e;
+      font-style: italic;
+    }
+    .cw-word-item .cw-word-del {
+      color: #740001;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .cw-word-item .cw-word-del:hover { background: rgba(116,0,1,0.1); }
   </style>
 </head>
 <body>
@@ -279,6 +364,7 @@
           <!-- Tabs -->
           <div class="admin-tabs">
             <button class="admin-tab active" data-tab="crucipuzzle">Crucipuzzle</button>
+            <button class="admin-tab" data-tab="cruciverba">Cruciverba</button>
             <button class="admin-tab" data-tab="quiz">Quiz</button>
             <button class="admin-tab" data-tab="classifiche">Classifiche</button>
           </div>
@@ -302,6 +388,83 @@
 
             <h3 style="font-family:Cinzel,serif;color:#2a1a0a;margin-bottom:15px;">Set Esistenti</h3>
             <div id="word-sets-list">
+              <p style="text-align:center;color:#8b5e3c;">Caricamento...</p>
+            </div>
+          </div>
+
+          <!-- CRUCIVERBA TAB -->
+          <div class="admin-tab-content" id="tab-cruciverba">
+            <!-- Builder -->
+            <div class="new-set-form" id="cw-builder">
+              <h3 id="cw-builder-title">Nuovo Cruciverba</h3>
+              <input type="hidden" id="cw-edit-id" value="">
+
+              <div style="display:flex;gap:15px;flex-wrap:wrap;margin-bottom:15px;">
+                <div class="form-group" style="flex:1;min-width:150px;">
+                  <label>Tema</label>
+                  <input type="text" id="cw-theme" placeholder="es. Mondo di Harry Potter">
+                </div>
+                <div class="form-group" style="width:80px;">
+                  <label>Righe</label>
+                  <input type="number" id="cw-rows" value="13" min="3" max="30">
+                </div>
+                <div class="form-group" style="width:80px;">
+                  <label>Colonne</label>
+                  <input type="number" id="cw-cols" value="13" min="3" max="30">
+                </div>
+                <div style="display:flex;align-items:flex-end;">
+                  <button class="btn btn-secondary" onclick="cwInitGrid()">Crea Griglia</button>
+                </div>
+              </div>
+
+              <!-- Tool selector -->
+              <div id="cw-tools" style="display:none; margin-bottom:15px;">
+                <label style="font-family:Cinzel,serif;font-size:0.85rem;color:#4a2c10;margin-bottom:8px;display:block;">Strumento</label>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <button class="btn btn-secondary cw-tool active" data-tool="word-h" onclick="cwSelectTool('word-h')">&#8594; Parola Orizzontale</button>
+                  <button class="btn btn-secondary cw-tool" data-tool="word-v" onclick="cwSelectTool('word-v')">&#8595; Parola Verticale</button>
+                  <button class="btn btn-secondary cw-tool" data-tool="black" onclick="cwSelectTool('black')">&#9632; Casella Nera</button>
+                  <button class="btn btn-secondary cw-tool" data-tool="invisible" onclick="cwSelectTool('invisible')">&#9723; Casella Invisibile</button>
+                  <button class="btn btn-secondary cw-tool" data-tool="eraser" onclick="cwSelectTool('eraser')">&#9003; Gomma</button>
+                </div>
+              </div>
+
+              <!-- Grid -->
+              <div id="cw-grid-container" style="display:none; margin-bottom:15px; overflow-x:auto;"></div>
+
+              <!-- Word input dialog (shown when clicking a cell with word tool) -->
+              <div id="cw-word-dialog" style="display:none; background:rgba(201,168,76,0.12); border:2px solid #c9a84c; border-radius:8px; padding:15px; margin-bottom:15px;">
+                <h4 style="font-family:Cinzel,serif;color:#2a1a0a;margin-bottom:10px;" id="cw-word-dialog-title">Inserisci Parola</h4>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+                  <div class="form-group" style="flex:1;min-width:150px;margin-bottom:0;">
+                    <label>Parola</label>
+                    <input type="text" id="cw-word-input" placeholder="es. PATRONUS" style="text-transform:uppercase;">
+                  </div>
+                  <div class="form-group" style="flex:2;min-width:200px;margin-bottom:0;">
+                    <label>Definizione</label>
+                    <input type="text" id="cw-clue-input" placeholder="La definizione per questa parola...">
+                  </div>
+                  <button class="btn btn-primary" onclick="cwPlaceWord()" style="height:40px;">Posiziona</button>
+                  <button class="btn btn-secondary" onclick="cwCancelWord()" style="height:40px;">Annulla</button>
+                </div>
+                <div id="cw-word-error" style="color:#740001;font-size:0.85rem;margin-top:8px;display:none;"></div>
+              </div>
+
+              <!-- Words list -->
+              <div id="cw-words-list" style="display:none; margin-bottom:15px;">
+                <h4 style="font-family:Cinzel,serif;color:#2a1a0a;margin-bottom:10px;">Parole inserite</h4>
+                <div id="cw-words-items"></div>
+              </div>
+
+              <div class="admin-msg" id="cw-builder-msg"></div>
+              <div id="cw-save-buttons" style="display:none; margin-top:15px; display:flex; gap:10px;">
+                <button class="btn btn-primary" onclick="cwSavePuzzle()">Salva Cruciverba</button>
+                <button class="btn btn-secondary" onclick="cwResetBuilder()">Reset</button>
+              </div>
+            </div>
+
+            <h3 style="font-family:Cinzel,serif;color:#2a1a0a;margin-bottom:15px;">Cruciverba Esistenti</h3>
+            <div id="cruciverba-list">
               <p style="text-align:center;color:#8b5e3c;">Caricamento...</p>
             </div>
           </div>
@@ -454,6 +617,7 @@
       loginSection.style.display = 'none';
       panelSection.classList.add('visible');
       loadWordSets();
+      loadCruciverbaList();
       loadQuizQuestions();
       loadClassificheStats();
     }
@@ -833,6 +997,511 @@
       } catch (e) {
         showMsg('reset-msg', 'Errore di connessione', 'error');
       }
+    }
+
+    // ===== CRUCIVERBA BUILDER =====
+    let cwGridData = null; // 2D array: null = invisible, 'black' = black, { letter, wordIds } = white
+    let cwWords = []; // { id, word, row, col, direction, clue, number }
+    let cwTool = 'word-h';
+    let cwSelectedCell = null; // { row, col }
+    let cwNextId = 1;
+    let cwGridRows = 0;
+    let cwGridCols = 0;
+
+    function cwInitGrid() {
+      const rows = parseInt(document.getElementById('cw-rows').value) || 13;
+      const cols = parseInt(document.getElementById('cw-cols').value) || 13;
+      if (rows < 3 || rows > 30 || cols < 3 || cols > 30) {
+        showMsg('cw-builder-msg', 'Dimensioni tra 3 e 30', 'error');
+        return;
+      }
+      cwGridRows = rows;
+      cwGridCols = cols;
+      cwGridData = Array.from({ length: rows }, () => Array(cols).fill(null));
+      cwWords = [];
+      cwNextId = 1;
+      cwSelectedCell = null;
+
+      document.getElementById('cw-tools').style.display = 'block';
+      document.getElementById('cw-grid-container').style.display = 'block';
+      document.getElementById('cw-save-buttons').style.display = 'flex';
+      cwCancelWord();
+      cwRenderGrid();
+      cwRenderWordsList();
+    }
+
+    function cwSelectTool(tool) {
+      cwTool = tool;
+      document.querySelectorAll('.cw-tool').forEach(b => b.classList.remove('active'));
+      document.querySelector(`.cw-tool[data-tool="${tool}"]`).classList.add('active');
+      cwCancelWord();
+    }
+
+    function cwRenderGrid() {
+      const container = document.getElementById('cw-grid-container');
+      const gridEl = document.createElement('div');
+      gridEl.className = 'cw-grid';
+      gridEl.style.gridTemplateColumns = `repeat(${cwGridCols}, 36px)`;
+
+      // Recalculate numbers
+      cwRecalcNumbers();
+
+      for (let r = 0; r < cwGridRows; r++) {
+        for (let c = 0; c < cwGridCols; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'cw-cell';
+          cell.dataset.row = r;
+          cell.dataset.col = c;
+
+          const cellData = cwGridData[r][c];
+
+          if (cellData === 'black') {
+            cell.classList.add('black');
+          } else if (cellData === null) {
+            cell.classList.add('invisible');
+          } else {
+            // White cell with letter
+            if (cellData.number) {
+              const numSpan = document.createElement('span');
+              numSpan.className = 'cw-num';
+              numSpan.textContent = cellData.number;
+              cell.appendChild(numSpan);
+            }
+            if (cellData.letter) {
+              const letterSpan = document.createElement('span');
+              letterSpan.className = 'cw-letter';
+              letterSpan.textContent = cellData.letter;
+              cell.appendChild(letterSpan);
+            }
+          }
+
+          if (cwSelectedCell && cwSelectedCell.row === r && cwSelectedCell.col === c) {
+            cell.classList.add('selected');
+          }
+
+          cell.addEventListener('click', () => cwOnCellClick(r, c));
+          gridEl.appendChild(cell);
+        }
+      }
+      container.innerHTML = '';
+      container.appendChild(gridEl);
+    }
+
+    function cwRecalcNumbers() {
+      // Reset numbers
+      for (let r = 0; r < cwGridRows; r++) {
+        for (let c = 0; c < cwGridCols; c++) {
+          const cd = cwGridData[r][c];
+          if (cd && typeof cd === 'object') {
+            cd.number = null;
+          }
+        }
+      }
+
+      // Collect starting positions of all words, sorted by position (top-to-bottom, left-to-right)
+      const starts = [];
+      for (const w of cwWords) {
+        const key = w.row * 1000 + w.col;
+        if (!starts.find(s => s.key === key)) {
+          starts.push({ key, row: w.row, col: w.col });
+        }
+      }
+      starts.sort((a, b) => a.key - b.key);
+
+      // Assign numbers
+      let num = 1;
+      for (const s of starts) {
+        const wordsAtPos = cwWords.filter(w => w.row === s.row && w.col === s.col);
+        for (const w of wordsAtPos) {
+          w.number = num;
+        }
+        if (cwGridData[s.row] && cwGridData[s.row][s.col] && typeof cwGridData[s.row][s.col] === 'object') {
+          cwGridData[s.row][s.col].number = num;
+        }
+        num++;
+      }
+    }
+
+    function cwOnCellClick(r, c) {
+      if (cwTool === 'black') {
+        // Check if cell has letters from words
+        const cd = cwGridData[r][c];
+        if (cd && typeof cd === 'object' && cd.wordIds && cd.wordIds.length > 0) {
+          if (!confirm('Questa casella contiene una lettera. Vuoi rimuovere le parole associate e renderla nera?')) return;
+          cwRemoveWordsAtCell(r, c);
+        }
+        cwGridData[r][c] = 'black';
+        cwRenderGrid();
+        cwRenderWordsList();
+      } else if (cwTool === 'invisible') {
+        const cd = cwGridData[r][c];
+        if (cd && typeof cd === 'object' && cd.wordIds && cd.wordIds.length > 0) {
+          if (!confirm('Questa casella contiene una lettera. Vuoi rimuovere le parole associate e renderla invisibile?')) return;
+          cwRemoveWordsAtCell(r, c);
+        }
+        cwGridData[r][c] = null;
+        cwRenderGrid();
+        cwRenderWordsList();
+      } else if (cwTool === 'eraser') {
+        const cd = cwGridData[r][c];
+        if (cd && typeof cd === 'object' && cd.wordIds && cd.wordIds.length > 0) {
+          cwRemoveWordsAtCell(r, c);
+        }
+        cwGridData[r][c] = null;
+        cwRenderGrid();
+        cwRenderWordsList();
+      } else if (cwTool === 'word-h' || cwTool === 'word-v') {
+        cwSelectedCell = { row: r, col: c };
+        const dir = cwTool === 'word-h' ? 'Orizzontale' : 'Verticale';
+        document.getElementById('cw-word-dialog-title').textContent = `Parola ${dir} da (${r+1}, ${c+1})`;
+        document.getElementById('cw-word-dialog').style.display = 'block';
+        document.getElementById('cw-word-input').value = '';
+        document.getElementById('cw-clue-input').value = '';
+        document.getElementById('cw-word-error').style.display = 'none';
+        document.getElementById('cw-word-input').focus();
+        cwRenderGrid();
+      }
+    }
+
+    function cwPlaceWord() {
+      if (!cwSelectedCell) return;
+      const word = document.getElementById('cw-word-input').value.trim().toUpperCase();
+      const clue = document.getElementById('cw-clue-input').value.trim();
+      const direction = cwTool === 'word-h' ? 'across' : 'down';
+      const r = cwSelectedCell.row;
+      const c = cwSelectedCell.col;
+
+      if (!word || word.length < 2) {
+        cwShowWordError('Inserisci una parola di almeno 2 lettere');
+        return;
+      }
+      if (!clue) {
+        cwShowWordError('Inserisci la definizione');
+        return;
+      }
+      if (!/^[A-Z]+$/.test(word)) {
+        cwShowWordError('Solo lettere A-Z (senza spazi o simboli)');
+        return;
+      }
+
+      // Check bounds
+      if (direction === 'across' && c + word.length > cwGridCols) {
+        cwShowWordError(`La parola non entra: serve spazio per ${word.length} lettere orizzontali`);
+        return;
+      }
+      if (direction === 'down' && r + word.length > cwGridRows) {
+        cwShowWordError(`La parola non entra: serve spazio per ${word.length} lettere verticali`);
+        return;
+      }
+
+      // Check conflicts with existing letters
+      const letters = word.split('');
+      for (let i = 0; i < letters.length; i++) {
+        const cr = direction === 'down' ? r + i : r;
+        const cc = direction === 'across' ? c + i : c;
+        const cd = cwGridData[cr][cc];
+
+        if (cd === 'black') {
+          cwShowWordError(`Conflitto in (${cr+1}, ${cc+1}): casella nera`);
+          return;
+        }
+        if (cd && typeof cd === 'object' && cd.letter && cd.letter !== letters[i]) {
+          cwShowWordError(`Conflitto in (${cr+1}, ${cc+1}): lettera "${cd.letter}" vs "${letters[i]}"`);
+          return;
+        }
+      }
+
+      // Check duplicate direction at same start position
+      const existing = cwWords.find(w => w.row === r && w.col === c && w.direction === direction);
+      if (existing) {
+        cwShowWordError(`C'è già una parola ${direction === 'across' ? 'orizzontale' : 'verticale'} in questa posizione`);
+        return;
+      }
+
+      // Place the word
+      const wordId = cwNextId++;
+      const wordObj = { id: wordId, word, row: r, col: c, direction, clue, number: 0 };
+      cwWords.push(wordObj);
+
+      for (let i = 0; i < letters.length; i++) {
+        const cr = direction === 'down' ? r + i : r;
+        const cc = direction === 'across' ? c + i : c;
+        let cd = cwGridData[cr][cc];
+
+        if (!cd || typeof cd !== 'object') {
+          cd = { letter: letters[i], wordIds: [], number: null };
+          cwGridData[cr][cc] = cd;
+        }
+        cd.letter = letters[i];
+        if (!cd.wordIds) cd.wordIds = [];
+        cd.wordIds.push(wordId);
+      }
+
+      cwCancelWord();
+      cwRenderGrid();
+      cwRenderWordsList();
+    }
+
+    function cwRemoveWord(wordId) {
+      const w = cwWords.find(x => x.id === wordId);
+      if (!w) return;
+
+      // Remove letters that only belong to this word
+      const letters = w.word.split('');
+      for (let i = 0; i < letters.length; i++) {
+        const cr = w.direction === 'down' ? w.row + i : w.row;
+        const cc = w.direction === 'across' ? w.col + i : w.col;
+        const cd = cwGridData[cr][cc];
+        if (cd && typeof cd === 'object' && cd.wordIds) {
+          cd.wordIds = cd.wordIds.filter(id => id !== wordId);
+          if (cd.wordIds.length === 0) {
+            cwGridData[cr][cc] = null;
+          }
+        }
+      }
+
+      cwWords = cwWords.filter(x => x.id !== wordId);
+      cwRenderGrid();
+      cwRenderWordsList();
+    }
+
+    function cwRemoveWordsAtCell(r, c) {
+      const cd = cwGridData[r][c];
+      if (!cd || typeof cd !== 'object' || !cd.wordIds) return;
+      const ids = [...cd.wordIds];
+      for (const id of ids) {
+        cwRemoveWord(id);
+      }
+    }
+
+    function cwShowWordError(msg) {
+      const el = document.getElementById('cw-word-error');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function cwCancelWord() {
+      cwSelectedCell = null;
+      document.getElementById('cw-word-dialog').style.display = 'none';
+      document.getElementById('cw-word-error').style.display = 'none';
+    }
+
+    function cwRenderWordsList() {
+      const container = document.getElementById('cw-words-items');
+      const wrapper = document.getElementById('cw-words-list');
+
+      if (cwWords.length === 0) {
+        wrapper.style.display = 'none';
+        return;
+      }
+      wrapper.style.display = 'block';
+
+      cwRecalcNumbers();
+
+      // Sort by number
+      const sorted = [...cwWords].sort((a, b) => a.number - b.number || (a.direction === 'across' ? -1 : 1));
+
+      container.innerHTML = sorted.map(w => `
+        <div class="cw-word-item">
+          <span class="cw-word-num">${w.number}.</span>
+          <span class="cw-word-dir">${w.direction === 'across' ? '&#8594;' : '&#8595;'}</span>
+          <span class="cw-word-text">${w.word}</span>
+          <span class="cw-word-clue">${w.clue}</span>
+          <span class="cw-word-del" onclick="cwRemoveWord(${w.id})" title="Rimuovi">&#10005;</span>
+        </div>
+      `).join('');
+    }
+
+    async function cwSavePuzzle() {
+      const theme = document.getElementById('cw-theme').value.trim();
+      if (!theme) {
+        showMsg('cw-builder-msg', 'Inserisci il tema del cruciverba', 'error');
+        return;
+      }
+      if (cwWords.length === 0) {
+        showMsg('cw-builder-msg', 'Inserisci almeno una parola', 'error');
+        return;
+      }
+
+      cwRecalcNumbers();
+
+      const wordsData = cwWords.map(w => ({
+        word: w.word,
+        row: w.row,
+        col: w.col,
+        direction: w.direction,
+        clue: w.clue,
+        number: w.number
+      }));
+
+      const editId = document.getElementById('cw-edit-id').value;
+      const method = editId ? 'PUT' : 'POST';
+      const url = editId ? `/admin/cruciverba-puzzles/${editId}` : '/admin/cruciverba-puzzles';
+
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            theme,
+            rows: cwGridRows,
+            cols: cwGridCols,
+            words: wordsData,
+            active: true
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showMsg('cw-builder-msg', editId ? 'Cruciverba aggiornato!' : 'Cruciverba salvato!', 'success');
+          cwResetBuilder();
+          loadCruciverbaList();
+          setTimeout(() => { const el = document.getElementById('cw-builder-msg'); if (el) el.style.display = 'none'; }, 3000);
+        } else {
+          showMsg('cw-builder-msg', data.error || 'Errore nel salvataggio', 'error');
+        }
+      } catch (e) {
+        showMsg('cw-builder-msg', 'Errore di connessione', 'error');
+      }
+    }
+
+    function cwResetBuilder() {
+      cwGridData = null;
+      cwWords = [];
+      cwNextId = 1;
+      cwSelectedCell = null;
+      document.getElementById('cw-edit-id').value = '';
+      document.getElementById('cw-builder-title').textContent = 'Nuovo Cruciverba';
+      document.getElementById('cw-theme').value = '';
+      document.getElementById('cw-rows').value = '13';
+      document.getElementById('cw-cols').value = '13';
+      document.getElementById('cw-tools').style.display = 'none';
+      document.getElementById('cw-grid-container').style.display = 'none';
+      document.getElementById('cw-grid-container').innerHTML = '';
+      document.getElementById('cw-save-buttons').style.display = 'none';
+      document.getElementById('cw-words-list').style.display = 'none';
+      cwCancelWord();
+    }
+
+    // ===== CRUCIVERBA LIST =====
+    async function loadCruciverbaList() {
+      const container = document.getElementById('cruciverba-list');
+      container.innerHTML = '<p style="text-align:center;color:#8b5e3c;">Caricamento...</p>';
+      try {
+        const res = await fetch('/admin/cruciverba-puzzles');
+        const data = await res.json();
+        container.innerHTML = '';
+
+        if (data.puzzles && data.puzzles.length > 0) {
+          for (const p of data.puzzles) {
+            container.appendChild(createCruciverbCard(p));
+          }
+        }
+        if (container.children.length === 0) {
+          container.innerHTML = '<p style="text-align:center;color:#8b5e3c;">Nessun cruciverba trovato.</p>';
+        }
+      } catch (e) {
+        container.innerHTML = '<p style="text-align:center;color:#740001;">Errore nel caricamento.</p>';
+      }
+    }
+
+    function createCruciverbCard(p) {
+      const card = document.createElement('div');
+      card.className = 'word-set-card' + (p.active === false ? ' inactive' : '');
+      const words = Array.isArray(p.words) ? p.words : [];
+      const wordsPreview = words.map(w => w.word).join(', ');
+
+      card.innerHTML = `
+        <h3>${p.theme}</h3>
+        <span style="font-size:0.8rem;color:#6b3a1a;">${p.rows}x${p.cols} &mdash; ${words.length} parole</span>
+        ${p.active === false ? '<span style="font-size:0.8rem;color:#740001;margin-left:8px;">DISATTIVATO</span>' : ''}
+        <div class="words-preview">${wordsPreview}</div>
+        <div class="card-actions">
+          <button class="btn btn-secondary" onclick="editCruciverba(${p.id})">Modifica</button>
+          <button class="btn btn-secondary" onclick="toggleCruciverba(${p.id}, ${p.active !== false})">
+            ${p.active !== false ? 'Disattiva' : 'Attiva'}
+          </button>
+          <button class="btn btn-secondary btn-danger" onclick="deleteCruciverba(${p.id})">Elimina</button>
+        </div>
+      `;
+      return card;
+    }
+
+    async function editCruciverba(id) {
+      const res = await fetch('/admin/cruciverba-puzzles');
+      const data = await res.json();
+      const p = data.puzzles.find(x => x.id === id);
+      if (!p) return;
+
+      // Load into builder
+      document.getElementById('cw-edit-id').value = id;
+      document.getElementById('cw-builder-title').textContent = 'Modifica Cruciverba';
+      document.getElementById('cw-theme').value = p.theme;
+      document.getElementById('cw-rows').value = p.rows;
+      document.getElementById('cw-cols').value = p.cols;
+
+      cwGridRows = p.rows;
+      cwGridCols = p.cols;
+      cwGridData = Array.from({ length: p.rows }, () => Array(p.cols).fill(null));
+      cwWords = [];
+      cwNextId = 1;
+
+      // Rebuild words from data
+      const words = Array.isArray(p.words) ? p.words : [];
+      for (const w of words) {
+        const wordId = cwNextId++;
+        const letters = w.word.split('');
+        cwWords.push({ id: wordId, word: w.word, row: w.row, col: w.col, direction: w.direction, clue: w.clue, number: w.number || 0 });
+
+        for (let i = 0; i < letters.length; i++) {
+          const cr = w.direction === 'down' ? w.row + i : w.row;
+          const cc = w.direction === 'across' ? w.col + i : w.col;
+          if (cr < cwGridRows && cc < cwGridCols) {
+            let cd = cwGridData[cr][cc];
+            if (!cd || typeof cd !== 'object') {
+              cd = { letter: letters[i], wordIds: [], number: null };
+              cwGridData[cr][cc] = cd;
+            }
+            cd.letter = letters[i];
+            if (!cd.wordIds) cd.wordIds = [];
+            cd.wordIds.push(wordId);
+          }
+        }
+      }
+
+      document.getElementById('cw-tools').style.display = 'block';
+      document.getElementById('cw-grid-container').style.display = 'block';
+      document.getElementById('cw-save-buttons').style.display = 'flex';
+      cwCancelWord();
+      cwRenderGrid();
+      cwRenderWordsList();
+
+      // Scroll to builder
+      document.getElementById('cw-builder').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function toggleCruciverba(id, currentlyActive) {
+      const res = await fetch('/admin/cruciverba-puzzles');
+      const data = await res.json();
+      const p = data.puzzles.find(x => x.id === id);
+      if (!p) return;
+      await fetch(`/admin/cruciverba-puzzles/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          theme: p.theme,
+          rows: p.rows,
+          cols: p.cols,
+          words: p.words,
+          active: !currentlyActive
+        })
+      });
+      loadCruciverbaList();
+    }
+
+    async function deleteCruciverba(id) {
+      if (!confirm('Sei sicuro di voler eliminare questo cruciverba?')) return;
+      await fetch(`/admin/cruciverba-puzzles/${id}`, { method: 'DELETE' });
+      loadCruciverbaList();
     }
 
     // ===== Edit Modal =====

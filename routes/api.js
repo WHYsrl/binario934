@@ -234,4 +234,25 @@ router.get('/crucipuzzle-words', async (req, res) => {
   }
 });
 
+// Get crossword puzzles (from DB)
+router.get('/cruciverba-puzzles', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM crossword_puzzles WHERE active = true ORDER BY created_at DESC'
+    );
+    const puzzles = result.rows.map(row => ({
+      id: row.id,
+      theme: row.theme,
+      rows: row.rows,
+      cols: row.cols,
+      size: row.rows === row.cols ? row.rows : undefined,
+      words: JSON.parse(row.words)
+    }));
+    res.json(puzzles);
+  } catch (err) {
+    console.error('Cruciverba puzzles error:', err);
+    res.status(500).json([]);
+  }
+});
+
 module.exports = router;
