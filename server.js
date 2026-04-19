@@ -42,6 +42,7 @@ app.use('/data', express.static(path.join(__dirname, 'data')));
 // Routes
 app.use('/auth', require('./routes/auth'));
 app.use('/api', require('./routes/api'));
+app.use('/admin', require('./routes/admin'));
 
 // Pages
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'views', 'index.html')));

@@ -40,6 +40,14 @@ async function initDB() {
       );
 
       CREATE INDEX IF NOT EXISTS idx_session_expire ON session(expire);
+
+      CREATE TABLE IF NOT EXISTS word_sets (
+        id SERIAL PRIMARY KEY,
+        theme VARCHAR(100) NOT NULL,
+        words TEXT NOT NULL,
+        active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
     `);
     console.log('Database tables ready');
   } catch (err) {

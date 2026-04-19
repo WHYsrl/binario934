@@ -43,7 +43,7 @@
 
   async function loadPuzzleData() {
     try {
-      const res = await fetch('/data/crucipuzzle-words.json');
+      const res = await fetch('/api/crucipuzzle-words');
       puzzleData = await res.json();
     } catch (e) {
       console.error('Failed to load puzzle data:', e);
@@ -302,10 +302,12 @@
     if (finalScoreEl) finalScoreEl.textContent = score;
     if (finalTimeEl) finalTimeEl.textContent = formatTime(elapsedSeconds);
 
+    // Save score FIRST, then get leaderboard position
+    await saveScore('crucipuzzle', score, elapsedSeconds);
+
     // Build result modal content
     const modal = resultOverlay ? resultOverlay.querySelector('.result-modal') : null;
     if (modal) {
-      // Remove old dynamic content
       modal.querySelectorAll('.result-detail, .login-prompt').forEach(el => el.remove());
 
       const detailDiv = document.createElement('div');
@@ -313,7 +315,7 @@
       detailDiv.innerHTML = `Hai trovato tutte le <strong>${words.length} parole</strong> in <strong>${formatTime(elapsedSeconds)}</strong>!`;
       modal.querySelector('.final-time').after(detailDiv);
 
-      // Show leaderboard position
+      // Show leaderboard position (after save)
       const rankInfo = await getLeaderboardPosition('crucipuzzle', score);
       if (rankInfo) {
         const rankDiv = document.createElement('div');
@@ -322,17 +324,9 @@
         detailDiv.after(rankDiv);
       }
 
-      // Login prompt if not logged in
       showLoginPrompt(modal);
     }
 
     if (resultOverlay) resultOverlay.classList.add('show');
-
-    // Save score
-    try {
-      saveScore('crucipuzzle', score, elapsedSeconds);
-    } catch (e) {
-      console.log('Score save not available');
-    }
   }
 })();

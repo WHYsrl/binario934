@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Binario 9 e 3/4</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .admin-container { max-width: 800px; margin: 0 auto; }
+    .admin-login { max-width: 400px; margin: 40px auto; text-align: center; }
+    .admin-panel { display: none; }
+    .admin-panel.visible { display: block; }
+
+    .word-set-card {
+      background: var(--parchment-light);
+      border: 2px solid var(--parchment-dark);
+      border-radius: 8px;
+      padding: 15px 20px;
+      margin-bottom: 15px;
+      position: relative;
+    }
+    .word-set-card.inactive { opacity: 0.5; }
+    .word-set-card h3 {
+      font-family: 'Cinzel', serif;
+      color: var(--brown-dark);
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+    .word-set-card .words-preview {
+      font-size: 0.85rem;
+      color: var(--brown);
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+    .word-set-card .source-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-family: 'Cinzel', serif;
+      margin-right: 8px;
+    }
+    .source-badge.file {
+      background: rgba(14,26,64,0.1);
+      color: var(--blue-ravenclaw);
+    }
+    .source-badge.database {
+      background: rgba(26,71,42,0.1);
+      color: var(--green-slytherin);
+    }
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .card-actions button {
+      font-size: 0.8rem;
+      padding: 6px 14px;
+    }
+
+    .new-set-form {
+      background: rgba(201,168,76,0.08);
+      border: 2px dashed var(--gold);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 25px;
+    }
+    .new-set-form h3 {
+      font-family: 'Cinzel', serif;
+      color: var(--brown-dark);
+      margin-bottom: 15px;
+    }
+    .new-set-form textarea {
+      width: 100%;
+      min-height: 80px;
+      padding: 10px;
+      border: 2px solid var(--parchment-dark);
+      border-radius: 6px;
+      background: var(--parchment-light);
+      font-family: 'Lora', serif;
+      font-size: 0.9rem;
+      resize: vertical;
+    }
+    .new-set-form textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+    .form-hint {
+      font-size: 0.8rem;
+      color: var(--brown-light);
+      margin-top: 4px;
+    }
+    .admin-msg {
+      padding: 10px 15px;
+      border-radius: 6px;
+      margin: 10px 0;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .admin-msg.success {
+      display: block;
+      background: rgba(26,71,42,0.1);
+      color: var(--green-slytherin);
+      border: 1px solid rgba(26,71,42,0.3);
+    }
+    .admin-msg.error {
+      display: block;
+      background: rgba(116,0,1,0.08);
+      color: var(--red-gryffindor);
+      border: 1px solid rgba(116,0,1,0.2);
+    }
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+    .admin-header h2 {
+      font-family: 'Cinzel Decorative', serif;
+      color: var(--brown-dark);
+    }
+  </style>
+</head>
+<body>
+  <div class="page-bg"></div>
+  <div class="site-wrapper">
+    <header class="site-header">
+      <div class="logo-container">
+        <a href="/"><img src="/images/logo_light.png" alt="Binario 9 e 3/4"></a>
+      </div>
+    </header>
+
+    <nav class="main-nav">
+      <button class="nav-toggle">&#9776;</button>
+      <ul class="nav-list">
+        <li><a href="/">Home Page</a></li>
+        <li><a href="/crucipuzzle">Crucipuzzle</a></li>
+        <li><a href="/cruciverba">Cruciverba</a></li>
+        <li><a href="/quiz">Mini Quiz</a></li>
+        <li><a href="/cappello">Test Cappello Parlante</a></li>
+        <li><a href="/classifiche">Classifiche</a></li>
+        <li><a href="/login" id="auth-link">Login/Registrati</a></li>
+      </ul>
+    </nav>
+
+    <main class="content-area">
+      <div class="admin-container">
+
+        <!-- Login Form -->
+        <div class="admin-login" id="admin-login">
+          <h1 class="page-title">Accesso Admin</h1>
+          <div class="form-group">
+            <label>Password Admin</label>
+            <input type="password" id="admin-password" placeholder="Inserisci la password admin">
+          </div>
+          <div class="admin-msg" id="login-msg"></div>
+          <button class="btn btn-primary" id="admin-login-btn" style="margin-top:10px;">Accedi</button>
+        </div>
+
+        <!-- Admin Panel -->
+        <div class="admin-panel" id="admin-panel">
+          <div class="admin-header">
+            <h2>Gestione Crucipuzzle</h2>
+            <button class="btn btn-secondary" id="admin-logout-btn" style="padding:8px 16px;font-size:0.8rem;">Esci Admin</button>
+          </div>
+
+          <!-- New Word Set Form -->
+          <div class="new-set-form">
+            <h3>Nuovo Set di Parole</h3>
+            <div class="form-group">
+              <label>Tema</label>
+              <input type="text" id="new-theme" placeholder="es. Creature Magiche">
+            </div>
+            <div class="form-group">
+              <label>Parole</label>
+              <textarea id="new-words" placeholder="DRAGO, FENICE, IPPOGRIF, THESTRAL, UNICORNO..."></textarea>
+              <div class="form-hint">Separa le parole con una virgola. Max 12 caratteri per parola. Min 3 parole.</div>
+            </div>
+            <div class="admin-msg" id="new-set-msg"></div>
+            <button class="btn btn-primary" id="save-new-set" style="width:auto;margin-top:10px;">Salva Nuovo Set</button>
+          </div>
+
+          <!-- Existing Word Sets -->
+          <h3 style="font-family:Cinzel,serif;color:#2a1a0a;margin-bottom:15px;">Set Esistenti</h3>
+          <div id="word-sets-list">
+            <p style="text-align:center;color:#8b5e3c;">Caricamento...</p>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="social-links">
+        <a href="#" title="Facebook"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+        <a href="#">&#120143;</a>
+        <a href="#" title="Instagram"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="#" title="TikTok"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.52a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V9.42a8.16 8.16 0 004.76 1.52v-3.4a4.85 4.85 0 01-1-.85z"/></svg></a>
+      </div>
+      <p>&copy; 2024 Binario 9 e 3/4</p>
+    </footer>
+  </div>
+
+  <script src="/js/main.js"></script>
+  <script>
+    // Admin page logic
+    const loginSection = document.getElementById('admin-login');
+    const panelSection = document.getElementById('admin-panel');
+    const loginBtn = document.getElementById('admin-login-btn');
+    const logoutBtn = document.getElementById('admin-logout-btn');
+    const passwordInput = document.getElementById('admin-password');
+    const loginMsg = document.getElementById('login-msg');
+    const saveNewSetBtn = document.getElementById('save-new-set');
+    const newSetMsg = document.getElementById('new-set-msg');
+
+    // Check if already logged in
+    checkAdminStatus();
+
+    async function checkAdminStatus() {
+      const res = await fetch('/admin/status');
+      const data = await res.json();
+      if (data.isAdmin) {
+        showPanel();
+      }
+    }
+
+    loginBtn.addEventListener('click', async () => {
+      const password = passwordInput.value;
+      if (!password) return;
+
+      const res = await fetch('/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        showPanel();
+      } else {
+        loginMsg.className = 'admin-msg error';
+        loginMsg.textContent = data.error || 'Password errata';
+      }
+    });
+
+    passwordInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') loginBtn.click();
+    });
+
+    logoutBtn.addEventListener('click', async () => {
+      await fetch('/admin/logout', { method: 'POST' });
+      panelSection.classList.remove('visible');
+      loginSection.style.display = 'block';
+      passwordInput.value = '';
+    });
+
+    function showPanel() {
+      loginSection.style.display = 'none';
+      panelSection.classList.add('visible');
+      loadWordSets();
+    }
+
+    // Load word sets
+    async function loadWordSets() {
+      const container = document.getElementById('word-sets-list');
+      container.innerHTML = '<p style="text-align:center;color:#8b5e3c;">Caricamento...</p>';
+
+      try {
+        const res = await fetch('/admin/word-sets');
+        const data = await res.json();
+
+        container.innerHTML = '';
+
+        // Show static sets first
+        if (data.staticSets && data.staticSets.length > 0) {
+          for (const set of data.staticSets) {
+            container.appendChild(createSetCard(set, 'file'));
+          }
+        }
+
+        // Then DB sets
+        if (data.dbSets && data.dbSets.length > 0) {
+          for (const set of data.dbSets) {
+            container.appendChild(createSetCard(set, 'database'));
+          }
+        }
+
+        if (container.children.length === 0) {
+          container.innerHTML = '<p style="text-align:center;color:#8b5e3c;">Nessun set trovato.</p>';
+        }
+      } catch (e) {
+        container.innerHTML = '<p style="text-align:center;color:#740001;">Errore nel caricamento.</p>';
+      }
+    }
+
+    function createSetCard(set, source) {
+      const card = document.createElement('div');
+      card.className = 'word-set-card' + (set.active === false ? ' inactive' : '');
+
+      const words = set.words || '';
+      const wordCount = words.split(',').filter(w => w.trim()).length;
+
+      card.innerHTML = `
+        <h3>${set.theme}</h3>
+        <span class="source-badge ${source}">${source === 'file' ? 'File JSON' : 'Database'}</span>
+        <span style="font-size:0.8rem;color:#6b3a1a;">${wordCount} parole</span>
+        ${set.active === false ? '<span style="font-size:0.8rem;color:#740001;margin-left:8px;">DISATTIVATO</span>' : ''}
+        <div class="words-preview">${words}</div>
+        ${source === 'database' ? `
+          <div class="card-actions">
+            <button class="btn btn-secondary" onclick="toggleSet(${set.id}, ${set.active !== false})" style="padding:6px 14px;font-size:0.8rem;">
+              ${set.active !== false ? 'Disattiva' : 'Attiva'}
+            </button>
+            <button class="btn btn-secondary" onclick="deleteSet(${set.id})" style="padding:6px 14px;font-size:0.8rem;color:#740001;border-color:#740001;">
+              Elimina
+            </button>
+          </div>
+        ` : '<div style="font-size:0.8rem;color:#6b3a1a;margin-top:8px;font-style:italic;">Set statico (modifica il file JSON per cambiarlo)</div>'}
+      `;
+
+      return card;
+    }
+
+    // Save new word set
+    saveNewSetBtn.addEventListener('click', async () => {
+      const theme = document.getElementById('new-theme').value.trim();
+      const words = document.getElementById('new-words').value.trim();
+
+      if (!theme || !words) {
+        newSetMsg.className = 'admin-msg error';
+        newSetMsg.textContent = 'Compila sia il tema che le parole';
+        return;
+      }
+
+      const res = await fetch('/admin/word-sets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ theme, words })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        newSetMsg.className = 'admin-msg success';
+        newSetMsg.textContent = 'Set salvato con successo!';
+        document.getElementById('new-theme').value = '';
+        document.getElementById('new-words').value = '';
+        loadWordSets();
+        setTimeout(() => { newSetMsg.style.display = 'none'; }, 3000);
+      } else {
+        newSetMsg.className = 'admin-msg error';
+        newSetMsg.textContent = data.error || 'Errore nel salvataggio';
+      }
+    });
+
+    // Toggle active state
+    async function toggleSet(id, currentlyActive) {
+      // Need to fetch current data first
+      const res = await fetch('/admin/word-sets');
+      const data = await res.json();
+      const set = data.dbSets.find(s => s.id === id);
+      if (!set) return;
+
+      await fetch(`/admin/word-sets/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          theme: set.theme,
+          words: set.words,
+          active: !currentlyActive
+        })
+      });
+      loadWordSets();
+    }
+
+    // Delete word set
+    async function deleteSet(id) {
+      if (!confirm('Sei sicuro di voler eliminare questo set?')) return;
+
+      await fetch(`/admin/word-sets/${id}`, { method: 'DELETE' });
+      loadWordSets();
+    }
+  </script>
+</body>
+</html>

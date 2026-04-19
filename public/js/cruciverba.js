@@ -197,6 +197,22 @@ function onCellKeydown(e) {
 function onCellFocus(e) {
   const r = parseInt(e.target.dataset.row);
   const c = parseInt(e.target.dataset.col);
+
+  // Auto-detect direction: if cell only belongs to one word direction, use that
+  const acrossWord = currentPuzzle.words.find(w =>
+    w.direction === 'across' && w.row === r && c >= w.col && c < w.col + w.word.length
+  );
+  const downWord = currentPuzzle.words.find(w =>
+    w.direction === 'down' && w.col === c && r >= w.row && r < w.row + w.word.length
+  );
+
+  if (acrossWord && !downWord) {
+    currentDirection = 'across';
+  } else if (downWord && !acrossWord) {
+    currentDirection = 'down';
+  }
+  // If both exist (intersection), keep current direction — user can toggle with arrows
+
   highlightWord(r, c, currentDirection);
 }
 
@@ -360,6 +376,9 @@ async function onPuzzleComplete() {
   document.getElementById('final-score').textContent = score;
   document.getElementById('final-time').textContent = timeStr;
 
+  // Save score FIRST
+  await saveScore('cruciverba', score, elapsedSeconds);
+
   // Build result modal with feedback
   const overlay = document.querySelector('.result-overlay');
   const modal = overlay ? overlay.querySelector('.result-modal') : null;
@@ -373,7 +392,7 @@ async function onPuzzleComplete() {
     const actionsEl = modal.querySelector('.result-actions');
     if (actionsEl) actionsEl.before(detailDiv);
 
-    // Leaderboard position
+    // Leaderboard position (after save)
     const rankInfo = await getLeaderboardPosition('cruciverba', score);
     if (rankInfo) {
       const rankDiv = document.createElement('div');
@@ -386,7 +405,6 @@ async function onPuzzleComplete() {
   }
 
   showOverlay();
-  saveScore('cruciverba', score, elapsedSeconds);
 }
 
 // ---- Timer ----

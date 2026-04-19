@@ -71,8 +71,9 @@ async function saveScore(gameType, score, timeSeconds) {
   }
 }
 
-// Utility: format time
+// Utility: format time (handles null/undefined)
 function formatTime(seconds) {
+  if (seconds === null || seconds === undefined) return '--:--';
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
   return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
@@ -93,14 +94,17 @@ async function getLeaderboardPosition(gameType, score) {
   try {
     const res = await fetch(`/api/classifiche/${gameType}`);
     const data = await res.json();
-    if (!Array.isArray(data)) return null;
-    // Find position (1-based)
+    if (!Array.isArray(data) || data.length === 0) return null;
+    // Find position (1-based) - data is sorted by score DESC
     let pos = 1;
     for (const entry of data) {
-      if (entry.score > score) pos++;
-      else break;
+      if (entry.score > score) {
+        pos++;
+      } else {
+        break;
+      }
     }
-    return { position: pos, total: data.length + 1 };
+    return { position: pos, total: data.length };
   } catch (e) {
     return null;
   }

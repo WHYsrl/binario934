@@ -133,6 +133,9 @@ async function showResults() {
     if (typeof AudioManager !== 'undefined') AudioManager.play('lose');
   }
 
+  // Save score FIRST
+  await saveScore('quiz', totalScore, null);
+
   // Add detail text
   if (modal) {
     const detailDiv = document.createElement('div');
@@ -151,7 +154,7 @@ async function showResults() {
     const actionsEl = modal.querySelector('.result-actions');
     if (actionsEl) actionsEl.before(detailDiv);
 
-    // Leaderboard position
+    // Leaderboard position (after save)
     const rankInfo = await getLeaderboardPosition('quiz', totalScore);
     if (rankInfo) {
       const rankDiv = document.createElement('div');
@@ -160,16 +163,12 @@ async function showResults() {
       detailDiv.after(rankDiv);
     }
 
-    // Login prompt
     showLoginPrompt(modal);
   }
 
   if (overlay) {
     overlay.classList.add('show');
   }
-
-  // Save score to server
-  saveScore('quiz', totalScore, null);
 }
 
 function restartQuiz() {
