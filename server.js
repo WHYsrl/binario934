@@ -8,6 +8,9 @@ const { pool, initDB } = require('./db/database');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy (Render, Heroku, etc. use reverse proxies)
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

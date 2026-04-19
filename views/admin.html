@@ -226,21 +226,40 @@
 
     loginBtn.addEventListener('click', async () => {
       const password = passwordInput.value;
-      if (!password) return;
-
-      const res = await fetch('/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
-      });
-      const data = await res.json();
-
-      if (data.success) {
-        showPanel();
-      } else {
+      if (!password) {
         loginMsg.className = 'admin-msg error';
-        loginMsg.textContent = data.error || 'Password errata';
+        loginMsg.textContent = 'Inserisci la password';
+        return;
       }
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Accesso...';
+
+      try {
+        const res = await fetch('/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password }),
+          credentials: 'same-origin'
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          loginMsg.className = 'admin-msg success';
+          loginMsg.textContent = 'Accesso riuscito!';
+          setTimeout(() => showPanel(), 300);
+        } else {
+          loginMsg.className = 'admin-msg error';
+          loginMsg.textContent = data.error || 'Password errata';
+        }
+      } catch (err) {
+        loginMsg.className = 'admin-msg error';
+        loginMsg.textContent = 'Errore di connessione';
+        console.error('Admin login error:', err);
+      }
+
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Accedi';
     });
 
     passwordInput.addEventListener('keydown', (e) => {
