@@ -17,7 +17,7 @@ let correctCount = 0;
 
 async function initQuiz() {
   try {
-    const res = await fetch('/data/quiz-questions.json');
+    const res = await fetch('/api/quiz-questions');
     const allQuestions = await res.json();
     questions = shuffleArray(allQuestions).slice(0, TOTAL_QUESTIONS);
     currentIndex = 0;

@@ -6,33 +6,60 @@
   <title>Admin - Binario 9 e 3/4</title>
   <link rel="stylesheet" href="/css/style.css">
   <style>
-    .admin-container { max-width: 800px; margin: 0 auto; }
+    .admin-container { max-width: 900px; margin: 0 auto; }
     .admin-login { max-width: 400px; margin: 40px auto; text-align: center; }
     .admin-panel { display: none; }
     .admin-panel.visible { display: block; }
 
-    .word-set-card {
-      background: var(--parchment-light);
-      border: 2px solid var(--parchment-dark);
+    .admin-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 25px;
+      border-bottom: 3px solid rgba(201,168,76,0.3);
+    }
+    .admin-tab {
+      padding: 12px 24px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.95rem;
+      background: none;
+      border: none;
+      color: #6b4e2e;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -3px;
+      transition: all 0.2s;
+    }
+    .admin-tab:hover { color: #4a2c10; }
+    .admin-tab.active {
+      color: #c9a84c;
+      border-bottom-color: #c9a84c;
+      font-weight: 700;
+    }
+    .admin-tab-content { display: none; }
+    .admin-tab-content.active { display: block; }
+
+    .word-set-card, .quiz-card {
+      background: rgba(255,248,230,0.6);
+      border: 2px solid rgba(201,168,76,0.25);
       border-radius: 8px;
       padding: 15px 20px;
       margin-bottom: 15px;
       position: relative;
     }
-    .word-set-card.inactive { opacity: 0.5; }
-    .word-set-card h3 {
+    .word-set-card.inactive, .quiz-card.inactive { opacity: 0.5; }
+    .word-set-card h3, .quiz-card h3 {
       font-family: 'Cinzel', serif;
-      color: var(--brown-dark);
+      color: #2a1a0a;
       margin-bottom: 8px;
       font-size: 1rem;
     }
-    .word-set-card .words-preview {
+    .words-preview {
       font-size: 0.85rem;
-      color: var(--brown);
+      color: #6b4e2e;
       line-height: 1.4;
       margin-bottom: 10px;
     }
-    .word-set-card .source-badge {
+    .source-badge {
       display: inline-block;
       font-size: 0.7rem;
       padding: 2px 8px;
@@ -42,52 +69,60 @@
     }
     .source-badge.file {
       background: rgba(14,26,64,0.1);
-      color: var(--blue-ravenclaw);
+      color: #0e1a40;
     }
     .source-badge.database {
       background: rgba(26,71,42,0.1);
-      color: var(--green-slytherin);
+      color: #1a472a;
     }
     .card-actions {
       display: flex;
       gap: 8px;
       margin-top: 10px;
+      flex-wrap: wrap;
     }
     .card-actions button {
       font-size: 0.8rem;
       padding: 6px 14px;
     }
+    .btn-danger {
+      color: #740001 !important;
+      border-color: #740001 !important;
+    }
 
     .new-set-form {
       background: rgba(201,168,76,0.08);
-      border: 2px dashed var(--gold);
+      border: 2px dashed #c9a84c;
       border-radius: 8px;
       padding: 20px;
       margin-bottom: 25px;
     }
     .new-set-form h3 {
       font-family: 'Cinzel', serif;
-      color: var(--brown-dark);
+      color: #2a1a0a;
       margin-bottom: 15px;
     }
-    .new-set-form textarea {
+    .new-set-form textarea, .new-set-form input[type="text"] {
       width: 100%;
-      min-height: 80px;
       padding: 10px;
-      border: 2px solid var(--parchment-dark);
+      border: 2px solid rgba(201,168,76,0.3);
       border-radius: 6px;
-      background: var(--parchment-light);
+      background: rgba(255,248,230,0.6);
       font-family: 'Lora', serif;
       font-size: 0.9rem;
+      box-sizing: border-box;
+    }
+    .new-set-form textarea {
+      min-height: 80px;
       resize: vertical;
     }
-    .new-set-form textarea:focus {
+    .new-set-form textarea:focus, .new-set-form input:focus {
       outline: none;
-      border-color: var(--gold);
+      border-color: #c9a84c;
     }
     .form-hint {
       font-size: 0.8rem;
-      color: var(--brown-light);
+      color: #8b5e3c;
       margin-top: 4px;
     }
     .admin-msg {
@@ -100,13 +135,13 @@
     .admin-msg.success {
       display: block;
       background: rgba(26,71,42,0.1);
-      color: var(--green-slytherin);
+      color: #1a472a;
       border: 1px solid rgba(26,71,42,0.3);
     }
     .admin-msg.error {
       display: block;
       background: rgba(116,0,1,0.08);
-      color: var(--red-gryffindor);
+      color: #740001;
       border: 1px solid rgba(116,0,1,0.2);
     }
     .admin-header {
@@ -117,8 +152,74 @@
     }
     .admin-header h2 {
       font-family: 'Cinzel Decorative', serif;
-      color: var(--brown-dark);
+      color: #2a1a0a;
     }
+
+    /* Edit modal */
+    .edit-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .edit-overlay.visible { display: flex; }
+    .edit-modal {
+      background: #fff8e6;
+      border: 3px solid #c9a84c;
+      border-radius: 12px;
+      padding: 25px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .edit-modal h3 {
+      font-family: 'Cinzel', serif;
+      color: #2a1a0a;
+      margin-bottom: 15px;
+    }
+    .edit-modal .form-group { margin-bottom: 12px; }
+    .edit-modal label {
+      display: block;
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      color: #4a2c10;
+      margin-bottom: 4px;
+    }
+    .edit-modal input, .edit-modal textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 2px solid rgba(201,168,76,0.3);
+      border-radius: 6px;
+      background: #fff;
+      font-family: 'Lora', serif;
+      font-size: 0.9rem;
+      box-sizing: border-box;
+    }
+    .edit-modal textarea { min-height: 60px; resize: vertical; }
+    .edit-modal input:focus, .edit-modal textarea:focus {
+      outline: none;
+      border-color: #c9a84c;
+    }
+    .edit-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 15px;
+    }
+
+    .quiz-option-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .quiz-option-row input[type="text"] { flex: 1; }
+    .quiz-option-row input[type="radio"] { flex: 0 0 auto; }
+    .quiz-option-row label { margin: 0; font-size: 0.8rem; }
   </style>
 </head>
 <body>
@@ -139,6 +240,7 @@
         <li><a href="/quiz">Mini Quiz</a></li>
         <li><a href="/cappello">Test Cappello Parlante</a></li>
         <li><a href="/classifiche">Classifiche</a></li>
+        <li><a href="/profilo">Il Mio Profilo</a></li>
         <li><a href="/login" id="auth-link">Login/Registrati</a></li>
       </ul>
     </nav>
@@ -160,35 +262,86 @@
         <!-- Admin Panel -->
         <div class="admin-panel" id="admin-panel">
           <div class="admin-header">
-            <h2>Gestione Crucipuzzle</h2>
+            <h2>Pannello Admin</h2>
             <button class="btn btn-secondary" id="admin-logout-btn" style="padding:8px 16px;font-size:0.8rem;">Esci Admin</button>
           </div>
 
-          <!-- New Word Set Form -->
-          <div class="new-set-form">
-            <h3>Nuovo Set di Parole</h3>
-            <div class="form-group">
-              <label>Tema</label>
-              <input type="text" id="new-theme" placeholder="es. Creature Magiche">
-            </div>
-            <div class="form-group">
-              <label>Parole</label>
-              <textarea id="new-words" placeholder="DRAGO, FENICE, IPPOGRIF, THESTRAL, UNICORNO..."></textarea>
-              <div class="form-hint">Separa le parole con una virgola. Max 12 caratteri per parola. Min 3 parole.</div>
-            </div>
-            <div class="admin-msg" id="new-set-msg"></div>
-            <button class="btn btn-primary" id="save-new-set" style="width:auto;margin-top:10px;">Salva Nuovo Set</button>
+          <!-- Tabs -->
+          <div class="admin-tabs">
+            <button class="admin-tab active" data-tab="crucipuzzle">Crucipuzzle</button>
+            <button class="admin-tab" data-tab="quiz">Quiz</button>
           </div>
 
-          <!-- Existing Word Sets -->
-          <h3 style="font-family:Cinzel,serif;color:#2a1a0a;margin-bottom:15px;">Set Esistenti</h3>
-          <div id="word-sets-list">
-            <p style="text-align:center;color:#8b5e3c;">Caricamento...</p>
+          <!-- CRUCIPUZZLE TAB -->
+          <div class="admin-tab-content active" id="tab-crucipuzzle">
+            <div class="new-set-form">
+              <h3>Nuovo Set di Parole</h3>
+              <div class="form-group">
+                <label>Tema</label>
+                <input type="text" id="new-theme" placeholder="es. Creature Magiche">
+              </div>
+              <div class="form-group">
+                <label>Parole</label>
+                <textarea id="new-words" placeholder="DRAGO, FENICE, IPPOGRIF, THESTRAL, UNICORNO..."></textarea>
+                <div class="form-hint">Separa le parole con una virgola. Max 12 caratteri per parola. Min 3 parole.</div>
+              </div>
+              <div class="admin-msg" id="new-set-msg"></div>
+              <button class="btn btn-primary" id="save-new-set" style="width:auto;margin-top:10px;">Salva Nuovo Set</button>
+            </div>
+
+            <h3 style="font-family:Cinzel,serif;color:#2a1a0a;margin-bottom:15px;">Set Esistenti</h3>
+            <div id="word-sets-list">
+              <p style="text-align:center;color:#8b5e3c;">Caricamento...</p>
+            </div>
           </div>
+
+          <!-- QUIZ TAB -->
+          <div class="admin-tab-content" id="tab-quiz">
+            <div class="new-set-form">
+              <h3>Nuova Domanda Quiz</h3>
+              <div class="form-group">
+                <label>Domanda</label>
+                <textarea id="new-question" placeholder="Scrivi la domanda..." style="min-height:50px;"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Opzioni di risposta (seleziona la corretta)</label>
+                <div id="new-quiz-options">
+                  <div class="quiz-option-row">
+                    <input type="radio" name="new-correct" value="0" checked>
+                    <input type="text" placeholder="Opzione 1">
+                  </div>
+                  <div class="quiz-option-row">
+                    <input type="radio" name="new-correct" value="1">
+                    <input type="text" placeholder="Opzione 2">
+                  </div>
+                  <div class="quiz-option-row">
+                    <input type="radio" name="new-correct" value="2">
+                    <input type="text" placeholder="Opzione 3">
+                  </div>
+                  <div class="quiz-option-row">
+                    <input type="radio" name="new-correct" value="3">
+                    <input type="text" placeholder="Opzione 4">
+                  </div>
+                </div>
+              </div>
+              <div class="admin-msg" id="new-quiz-msg"></div>
+              <button class="btn btn-primary" id="save-new-quiz" style="width:auto;margin-top:10px;">Salva Domanda</button>
+            </div>
+
+            <h3 style="font-family:Cinzel,serif;color:#2a1a0a;margin-bottom:15px;">Domande Esistenti</h3>
+            <div id="quiz-questions-list">
+              <p style="text-align:center;color:#8b5e3c;">Caricamento...</p>
+            </div>
+          </div>
+
         </div>
-
       </div>
     </main>
+
+    <!-- Edit Modal -->
+    <div class="edit-overlay" id="edit-overlay">
+      <div class="edit-modal" id="edit-modal"></div>
+    </div>
 
     <footer class="site-footer">
       <div class="social-links">
@@ -203,38 +356,33 @@
 
   <script src="/js/main.js"></script>
   <script>
-    // Admin page logic
+    // ===== Admin Page Logic =====
     const loginSection = document.getElementById('admin-login');
     const panelSection = document.getElementById('admin-panel');
     const loginBtn = document.getElementById('admin-login-btn');
     const logoutBtn = document.getElementById('admin-logout-btn');
     const passwordInput = document.getElementById('admin-password');
     const loginMsg = document.getElementById('login-msg');
-    const saveNewSetBtn = document.getElementById('save-new-set');
-    const newSetMsg = document.getElementById('new-set-msg');
+    const editOverlay = document.getElementById('edit-overlay');
+    const editModal = document.getElementById('edit-modal');
 
-    // Check if already logged in
     checkAdminStatus();
 
+    // ===== Auth =====
     async function checkAdminStatus() {
       const res = await fetch('/admin/status');
       const data = await res.json();
-      if (data.isAdmin) {
-        showPanel();
-      }
+      if (data.isAdmin) showPanel();
     }
 
     loginBtn.addEventListener('click', async () => {
       const password = passwordInput.value;
       if (!password) {
-        loginMsg.className = 'admin-msg error';
-        loginMsg.textContent = 'Inserisci la password';
+        showMsg('login-msg', 'Inserisci la password', 'error');
         return;
       }
-
       loginBtn.disabled = true;
       loginBtn.textContent = 'Accesso...';
-
       try {
         const res = await fetch('/admin/login', {
           method: 'POST',
@@ -243,21 +391,15 @@
           credentials: 'same-origin'
         });
         const data = await res.json();
-
         if (res.ok && data.success) {
-          loginMsg.className = 'admin-msg success';
-          loginMsg.textContent = 'Accesso riuscito!';
+          showMsg('login-msg', 'Accesso riuscito!', 'success');
           setTimeout(() => showPanel(), 300);
         } else {
-          loginMsg.className = 'admin-msg error';
-          loginMsg.textContent = data.error || 'Password errata';
+          showMsg('login-msg', data.error || 'Password errata', 'error');
         }
       } catch (err) {
-        loginMsg.className = 'admin-msg error';
-        loginMsg.textContent = 'Errore di connessione';
-        console.error('Admin login error:', err);
+        showMsg('login-msg', 'Errore di connessione', 'error');
       }
-
       loginBtn.disabled = false;
       loginBtn.textContent = 'Accedi';
     });
@@ -277,33 +419,48 @@
       loginSection.style.display = 'none';
       panelSection.classList.add('visible');
       loadWordSets();
+      loadQuizQuestions();
     }
 
-    // Load word sets
+    function showMsg(id, text, type) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.className = 'admin-msg ' + type;
+        el.textContent = text;
+      }
+    }
+
+    // ===== Tabs =====
+    document.querySelectorAll('.admin-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // ===== CRUCIPUZZLE =====
     async function loadWordSets() {
       const container = document.getElementById('word-sets-list');
       container.innerHTML = '<p style="text-align:center;color:#8b5e3c;">Caricamento...</p>';
-
       try {
         const res = await fetch('/admin/word-sets');
         const data = await res.json();
-
         container.innerHTML = '';
 
-        // Show static sets first
+        // Static sets (from JSON file)
         if (data.staticSets && data.staticSets.length > 0) {
           for (const set of data.staticSets) {
-            container.appendChild(createSetCard(set, 'file'));
+            container.appendChild(createWordSetCard(set, 'file'));
           }
         }
-
-        // Then DB sets
+        // DB sets
         if (data.dbSets && data.dbSets.length > 0) {
           for (const set of data.dbSets) {
-            container.appendChild(createSetCard(set, 'database'));
+            container.appendChild(createWordSetCard(set, 'database'));
           }
         }
-
         if (container.children.length === 0) {
           container.innerHTML = '<p style="text-align:center;color:#8b5e3c;">Nessun set trovato.</p>';
         }
@@ -312,12 +469,33 @@
       }
     }
 
-    function createSetCard(set, source) {
+    function createWordSetCard(set, source) {
       const card = document.createElement('div');
       card.className = 'word-set-card' + (set.active === false ? ' inactive' : '');
-
       const words = set.words || '';
       const wordCount = words.split(',').filter(w => w.trim()).length;
+
+      let actionsHtml = '';
+      if (source === 'database') {
+        actionsHtml = `
+          <div class="card-actions">
+            <button class="btn btn-secondary" onclick="editWordSet(${set.id})">Modifica</button>
+            <button class="btn btn-secondary" onclick="toggleWordSet(${set.id}, ${set.active !== false})">
+              ${set.active !== false ? 'Disattiva' : 'Attiva'}
+            </button>
+            <button class="btn btn-secondary btn-danger" onclick="deleteWordSet(${set.id})">Elimina</button>
+          </div>
+        `;
+      } else {
+        // File-based: offer import to DB for editing
+        actionsHtml = `
+          <div class="card-actions">
+            <button class="btn btn-secondary" onclick="importWordSetToDB('${encodeURIComponent(set.theme)}', '${encodeURIComponent(words)}')">
+              Importa in DB per modificare
+            </button>
+          </div>
+        `;
+      }
 
       card.innerHTML = `
         <h3>${set.theme}</h3>
@@ -325,79 +503,348 @@
         <span style="font-size:0.8rem;color:#6b3a1a;">${wordCount} parole</span>
         ${set.active === false ? '<span style="font-size:0.8rem;color:#740001;margin-left:8px;">DISATTIVATO</span>' : ''}
         <div class="words-preview">${words}</div>
-        ${source === 'database' ? `
-          <div class="card-actions">
-            <button class="btn btn-secondary" onclick="toggleSet(${set.id}, ${set.active !== false})" style="padding:6px 14px;font-size:0.8rem;">
-              ${set.active !== false ? 'Disattiva' : 'Attiva'}
-            </button>
-            <button class="btn btn-secondary" onclick="deleteSet(${set.id})" style="padding:6px 14px;font-size:0.8rem;color:#740001;border-color:#740001;">
-              Elimina
-            </button>
-          </div>
-        ` : '<div style="font-size:0.8rem;color:#6b3a1a;margin-top:8px;font-style:italic;">Set statico (modifica il file JSON per cambiarlo)</div>'}
+        ${actionsHtml}
       `;
-
       return card;
     }
 
     // Save new word set
-    saveNewSetBtn.addEventListener('click', async () => {
+    document.getElementById('save-new-set').addEventListener('click', async () => {
       const theme = document.getElementById('new-theme').value.trim();
       const words = document.getElementById('new-words').value.trim();
-
       if (!theme || !words) {
-        newSetMsg.className = 'admin-msg error';
-        newSetMsg.textContent = 'Compila sia il tema che le parole';
+        showMsg('new-set-msg', 'Compila sia il tema che le parole', 'error');
         return;
       }
-
       const res = await fetch('/admin/word-sets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ theme, words })
       });
       const data = await res.json();
-
       if (data.success) {
-        newSetMsg.className = 'admin-msg success';
-        newSetMsg.textContent = 'Set salvato con successo!';
+        showMsg('new-set-msg', 'Set salvato con successo!', 'success');
         document.getElementById('new-theme').value = '';
         document.getElementById('new-words').value = '';
         loadWordSets();
-        setTimeout(() => { newSetMsg.style.display = 'none'; }, 3000);
+        setTimeout(() => { document.getElementById('new-set-msg').style.display = 'none'; }, 3000);
       } else {
-        newSetMsg.className = 'admin-msg error';
-        newSetMsg.textContent = data.error || 'Errore nel salvataggio';
+        showMsg('new-set-msg', data.error || 'Errore nel salvataggio', 'error');
       }
     });
 
-    // Toggle active state
-    async function toggleSet(id, currentlyActive) {
-      // Need to fetch current data first
+    // Edit word set
+    async function editWordSet(id) {
       const res = await fetch('/admin/word-sets');
       const data = await res.json();
       const set = data.dbSets.find(s => s.id === id);
       if (!set) return;
 
+      editModal.innerHTML = `
+        <h3>Modifica Set: ${set.theme}</h3>
+        <div class="form-group">
+          <label>Tema</label>
+          <input type="text" id="edit-ws-theme" value="${set.theme}">
+        </div>
+        <div class="form-group">
+          <label>Parole (separate da virgola)</label>
+          <textarea id="edit-ws-words">${set.words}</textarea>
+        </div>
+        <div class="admin-msg" id="edit-ws-msg"></div>
+        <div class="edit-actions">
+          <button class="btn btn-secondary" onclick="closeEditModal()">Annulla</button>
+          <button class="btn btn-primary" onclick="saveEditWordSet(${id})">Salva</button>
+        </div>
+      `;
+      editOverlay.classList.add('visible');
+    }
+
+    async function saveEditWordSet(id) {
+      const theme = document.getElementById('edit-ws-theme').value.trim();
+      const words = document.getElementById('edit-ws-words').value.trim();
+      if (!theme || !words) {
+        showMsg('edit-ws-msg', 'Compila tutti i campi', 'error');
+        return;
+      }
+      const res = await fetch(`/admin/word-sets/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ theme, words, active: true })
+      });
+      const data = await res.json();
+      if (data.success) {
+        closeEditModal();
+        loadWordSets();
+      } else {
+        showMsg('edit-ws-msg', data.error || 'Errore', 'error');
+      }
+    }
+
+    // Toggle active
+    async function toggleWordSet(id, currentlyActive) {
+      const res = await fetch('/admin/word-sets');
+      const data = await res.json();
+      const set = data.dbSets.find(s => s.id === id);
+      if (!set) return;
       await fetch(`/admin/word-sets/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          theme: set.theme,
-          words: set.words,
-          active: !currentlyActive
-        })
+        body: JSON.stringify({ theme: set.theme, words: set.words, active: !currentlyActive })
       });
       loadWordSets();
     }
 
     // Delete word set
-    async function deleteSet(id) {
+    async function deleteWordSet(id) {
       if (!confirm('Sei sicuro di voler eliminare questo set?')) return;
-
       await fetch(`/admin/word-sets/${id}`, { method: 'DELETE' });
       loadWordSets();
     }
+
+    // Import JSON set to DB
+    async function importWordSetToDB(encodedTheme, encodedWords) {
+      const theme = decodeURIComponent(encodedTheme);
+      const words = decodeURIComponent(encodedWords);
+      const res = await fetch('/admin/word-sets/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ theme, words })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Set importato nel database! Ora puoi modificarlo.');
+        loadWordSets();
+      } else {
+        alert(data.error || 'Errore nell\'importazione');
+      }
+    }
+
+    // ===== QUIZ =====
+    async function loadQuizQuestions() {
+      const container = document.getElementById('quiz-questions-list');
+      container.innerHTML = '<p style="text-align:center;color:#8b5e3c;">Caricamento...</p>';
+      try {
+        const res = await fetch('/admin/quiz-questions');
+        const data = await res.json();
+        container.innerHTML = '';
+
+        // Static questions
+        if (data.staticQuestions && data.staticQuestions.length > 0) {
+          for (const q of data.staticQuestions) {
+            container.appendChild(createQuizCard(q, 'file'));
+          }
+        }
+        // DB questions
+        if (data.dbQuestions && data.dbQuestions.length > 0) {
+          for (const q of data.dbQuestions) {
+            container.appendChild(createQuizCard(q, 'database'));
+          }
+        }
+        if (container.children.length === 0) {
+          container.innerHTML = '<p style="text-align:center;color:#8b5e3c;">Nessuna domanda trovata.</p>';
+        }
+      } catch (e) {
+        container.innerHTML = '<p style="text-align:center;color:#740001;">Errore nel caricamento.</p>';
+      }
+    }
+
+    function createQuizCard(q, source) {
+      const card = document.createElement('div');
+      card.className = 'quiz-card' + (q.active === false ? ' inactive' : '');
+
+      const options = Array.isArray(q.options) ? q.options : [];
+      const correctIdx = q.correct_index !== undefined ? q.correct_index : q.correct;
+      const optionsHtml = options.map((opt, i) =>
+        `<span style="display:block;font-size:0.85rem;color:${i === correctIdx ? '#1a472a;font-weight:bold' : '#6b4e2e'};">
+          ${i === correctIdx ? '&#10004; ' : '&nbsp;&nbsp;&nbsp;'} ${opt}
+        </span>`
+      ).join('');
+
+      let actionsHtml = '';
+      if (source === 'database') {
+        actionsHtml = `
+          <div class="card-actions">
+            <button class="btn btn-secondary" onclick="editQuizQuestion(${q.id})">Modifica</button>
+            <button class="btn btn-secondary" onclick="toggleQuizQuestion(${q.id}, ${q.active !== false})">
+              ${q.active !== false ? 'Disattiva' : 'Attiva'}
+            </button>
+            <button class="btn btn-secondary btn-danger" onclick="deleteQuizQuestion(${q.id})">Elimina</button>
+          </div>
+        `;
+      } else {
+        const qData = encodeURIComponent(JSON.stringify({
+          question: q.question,
+          options: q.options,
+          correct: correctIdx
+        }));
+        actionsHtml = `
+          <div class="card-actions">
+            <button class="btn btn-secondary" onclick="importQuizToDB('${qData}')">
+              Importa in DB per modificare
+            </button>
+          </div>
+        `;
+      }
+
+      card.innerHTML = `
+        <h3>${q.question}</h3>
+        <span class="source-badge ${source}">${source === 'file' ? 'File JSON' : 'Database'}</span>
+        ${q.active === false ? '<span style="font-size:0.8rem;color:#740001;margin-left:8px;">DISATTIVATA</span>' : ''}
+        <div style="margin-top:8px;">${optionsHtml}</div>
+        ${actionsHtml}
+      `;
+      return card;
+    }
+
+    // Save new quiz question
+    document.getElementById('save-new-quiz').addEventListener('click', async () => {
+      const question = document.getElementById('new-question').value.trim();
+      const optionInputs = document.querySelectorAll('#new-quiz-options input[type="text"]');
+      const options = Array.from(optionInputs).map(i => i.value.trim()).filter(v => v);
+      const correctRadio = document.querySelector('#new-quiz-options input[type="radio"]:checked');
+      const correct_index = correctRadio ? parseInt(correctRadio.value) : 0;
+
+      if (!question || options.length < 2) {
+        showMsg('new-quiz-msg', 'Inserisci la domanda e almeno 2 opzioni', 'error');
+        return;
+      }
+
+      const res = await fetch('/admin/quiz-questions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, options, correct_index })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showMsg('new-quiz-msg', 'Domanda salvata!', 'success');
+        document.getElementById('new-question').value = '';
+        document.querySelectorAll('#new-quiz-options input[type="text"]').forEach(i => i.value = '');
+        loadQuizQuestions();
+        setTimeout(() => { document.getElementById('new-quiz-msg').style.display = 'none'; }, 3000);
+      } else {
+        showMsg('new-quiz-msg', data.error || 'Errore nel salvataggio', 'error');
+      }
+    });
+
+    // Edit quiz question
+    async function editQuizQuestion(id) {
+      const res = await fetch('/admin/quiz-questions');
+      const data = await res.json();
+      const q = data.dbQuestions.find(x => x.id === id);
+      if (!q) return;
+
+      const options = Array.isArray(q.options) ? q.options : [];
+      const correctIdx = q.correct_index;
+
+      let optionsHtml = '';
+      for (let i = 0; i < Math.max(4, options.length); i++) {
+        optionsHtml += `
+          <div class="quiz-option-row">
+            <input type="radio" name="edit-correct" value="${i}" ${i === correctIdx ? 'checked' : ''}>
+            <input type="text" id="edit-q-opt-${i}" value="${options[i] || ''}">
+          </div>
+        `;
+      }
+
+      editModal.innerHTML = `
+        <h3>Modifica Domanda</h3>
+        <div class="form-group">
+          <label>Domanda</label>
+          <textarea id="edit-q-text">${q.question}</textarea>
+        </div>
+        <div class="form-group">
+          <label>Opzioni (seleziona la corretta)</label>
+          <div id="edit-quiz-options">${optionsHtml}</div>
+        </div>
+        <div class="admin-msg" id="edit-q-msg"></div>
+        <div class="edit-actions">
+          <button class="btn btn-secondary" onclick="closeEditModal()">Annulla</button>
+          <button class="btn btn-primary" onclick="saveEditQuiz(${id})">Salva</button>
+        </div>
+      `;
+      editOverlay.classList.add('visible');
+    }
+
+    async function saveEditQuiz(id) {
+      const question = document.getElementById('edit-q-text').value.trim();
+      const optInputs = editModal.querySelectorAll('#edit-quiz-options input[type="text"]');
+      const options = Array.from(optInputs).map(i => i.value.trim()).filter(v => v);
+      const correctRadio = editModal.querySelector('#edit-quiz-options input[type="radio"]:checked');
+      const correct_index = correctRadio ? parseInt(correctRadio.value) : 0;
+
+      if (!question || options.length < 2) {
+        showMsg('edit-q-msg', 'Compila tutti i campi', 'error');
+        return;
+      }
+
+      const res = await fetch(`/admin/quiz-questions/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, options, correct_index, active: true })
+      });
+      const data = await res.json();
+      if (data.success) {
+        closeEditModal();
+        loadQuizQuestions();
+      } else {
+        showMsg('edit-q-msg', data.error || 'Errore', 'error');
+      }
+    }
+
+    // Toggle quiz question
+    async function toggleQuizQuestion(id, currentlyActive) {
+      const res = await fetch('/admin/quiz-questions');
+      const data = await res.json();
+      const q = data.dbQuestions.find(x => x.id === id);
+      if (!q) return;
+      await fetch(`/admin/quiz-questions/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: q.question,
+          options: q.options,
+          correct_index: q.correct_index,
+          active: !currentlyActive
+        })
+      });
+      loadQuizQuestions();
+    }
+
+    // Delete quiz question
+    async function deleteQuizQuestion(id) {
+      if (!confirm('Sei sicuro di voler eliminare questa domanda?')) return;
+      await fetch(`/admin/quiz-questions/${id}`, { method: 'DELETE' });
+      loadQuizQuestions();
+    }
+
+    // Import JSON quiz to DB
+    async function importQuizToDB(encodedData) {
+      const q = JSON.parse(decodeURIComponent(encodedData));
+      const res = await fetch('/admin/quiz-questions/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: q.question,
+          options: q.options,
+          correct_index: q.correct
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Domanda importata nel database! Ora puoi modificarla.');
+        loadQuizQuestions();
+      } else {
+        alert(data.error || 'Errore nell\'importazione');
+      }
+    }
+
+    // ===== Edit Modal =====
+    function closeEditModal() {
+      editOverlay.classList.remove('visible');
+    }
+    editOverlay.addEventListener('click', (e) => {
+      if (e.target === editOverlay) closeEditModal();
+    });
   </script>
 </body>
 </html>

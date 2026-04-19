@@ -54,6 +54,7 @@ app.get('/cruciverba', (req, res) => res.sendFile(path.join(__dirname, 'views', 
 app.get('/quiz', (req, res) => res.sendFile(path.join(__dirname, 'views', 'quiz.html')));
 app.get('/cappello', (req, res) => res.sendFile(path.join(__dirname, 'views', 'cappello.html')));
 app.get('/classifiche', (req, res) => res.sendFile(path.join(__dirname, 'views', 'classifiche.html')));
+app.get('/profilo', (req, res) => res.sendFile(path.join(__dirname, 'views', 'profilo.html')));
 app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'views', 'login.html')));
 
 // Init DB then start server

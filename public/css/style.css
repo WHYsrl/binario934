@@ -1204,6 +1204,59 @@ body {
   animation: sparkle 1s ease forwards;
 }
 
+/* ===== PROFILE PAGE ===== */
+.profile-section {
+  margin-bottom: 25px;
+}
+
+.profile-games {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.profile-game-card {
+  background: rgba(201,168,76,0.08);
+  border: 2px solid rgba(201,168,76,0.25);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.2s;
+}
+
+.profile-game-card:hover {
+  transform: translateY(-3px);
+}
+
+.profile-game-card h3 {
+  font-family: Cinzel, serif;
+  color: #4a2c10;
+  font-size: 1.1rem;
+  margin: 0 0 12px 0;
+}
+
+.profile-game-score {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #c9a84c;
+  font-family: Cinzel, serif;
+}
+
+.profile-game-detail {
+  font-family: Lora, serif;
+  color: #6b4e2e;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.profile-game-rank {
+  font-family: Cinzel, serif;
+  color: #4a2c10;
+  font-weight: 600;
+  margin-top: 8px;
+  font-size: 1rem;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 700px) {
   .games-grid {

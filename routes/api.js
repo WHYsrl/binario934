@@ -38,6 +38,24 @@ router.post('/scores', async (req, res) => {
 router.get('/classifiche/:game_type', async (req, res) => {
   try {
     const { game_type } = req.params;
+
+    // General leaderboard: sum of best scores per game per user
+    if (game_type === 'generale') {
+      const result = await pool.query(`
+        SELECT u.username, u.house, SUM(best.best_score) as score
+        FROM users u
+        JOIN (
+          SELECT user_id, game_type, MAX(score) as best_score
+          FROM scores
+          GROUP BY user_id, game_type
+        ) best ON u.id = best.user_id
+        GROUP BY u.id, u.username, u.house
+        ORDER BY score DESC
+        LIMIT 50
+      `);
+      return res.json(result.rows);
+    }
+
     const validGames = ['crucipuzzle', 'cruciverba', 'quiz'];
 
     if (!validGames.includes(game_type)) {
@@ -96,6 +114,125 @@ router.get('/houses', async (req, res) => {
   } catch (err) {
     console.error('Houses error:', err);
     res.status(500).json({ error: 'Errore' });
+  }
+});
+
+// Get user profile data (scores, rankings)
+router.get('/profilo', async (req, res) => {
+  try {
+    if (!req.session.user) {
+      return res.status(401).json({ error: 'Non loggato' });
+    }
+
+    const userId = req.session.user.id;
+
+    // User info
+    const userRes = await pool.query('SELECT id, username, house, created_at FROM users WHERE id = $1', [userId]);
+    if (userRes.rows.length === 0) {
+      return res.status(404).json({ error: 'Utente non trovato' });
+    }
+    const user = userRes.rows[0];
+
+    // Best scores per game
+    const scoresRes = await pool.query(`
+      SELECT game_type, MAX(score) as best_score, COUNT(*) as times_played
+      FROM scores WHERE user_id = $1
+      GROUP BY game_type
+    `, [userId]);
+
+    // Total score (sum of best per game)
+    const totalScore = scoresRes.rows.reduce((sum, r) => sum + parseInt(r.best_score), 0);
+
+    // General ranking position
+    const generalRankRes = await pool.query(`
+      SELECT COUNT(*) + 1 as position FROM (
+        SELECT SUM(best.best_score) as total
+        FROM users u
+        JOIN (
+          SELECT user_id, game_type, MAX(score) as best_score
+          FROM scores GROUP BY user_id, game_type
+        ) best ON u.id = best.user_id
+        WHERE u.id != $1
+        GROUP BY u.id
+        HAVING SUM(best.best_score) > $2
+      ) ranked
+    `, [userId, totalScore]);
+
+    const totalPlayersRes = await pool.query(`
+      SELECT COUNT(DISTINCT user_id) as total FROM scores
+    `);
+
+    // Per-game ranking positions
+    const gameRankings = {};
+    for (const row of scoresRes.rows) {
+      const rankRes = await pool.query(`
+        SELECT COUNT(*) + 1 as position FROM (
+          SELECT user_id, MAX(score) as best FROM scores
+          WHERE game_type = $1 AND user_id != $2
+          GROUP BY user_id
+          HAVING MAX(score) > $3
+        ) ranked
+      `, [row.game_type, userId, row.best_score]);
+
+      const gameTotalRes = await pool.query(`
+        SELECT COUNT(DISTINCT user_id) as total FROM scores WHERE game_type = $1
+      `, [row.game_type]);
+
+      gameRankings[row.game_type] = {
+        best_score: parseInt(row.best_score),
+        times_played: parseInt(row.times_played),
+        position: parseInt(rankRes.rows[0].position),
+        total: parseInt(gameTotalRes.rows[0].total)
+      };
+    }
+
+    res.json({
+      user,
+      totalScore,
+      generalPosition: parseInt(generalRankRes.rows[0].position),
+      totalPlayers: parseInt(totalPlayersRes.rows[0].total),
+      gameRankings
+    });
+  } catch (err) {
+    console.error('Profile error:', err);
+    res.status(500).json({ error: 'Errore nel caricamento del profilo' });
+  }
+});
+
+// Get quiz questions (from DB + JSON fallback)
+router.get('/quiz-questions', async (req, res) => {
+  try {
+    const allQuestions = [];
+
+    // Load from database first
+    try {
+      const result = await pool.query(
+        'SELECT * FROM quiz_questions WHERE active = true ORDER BY created_at DESC'
+      );
+      for (const row of result.rows) {
+        allQuestions.push({
+          id: 'db_' + row.id,
+          question: row.question,
+          options: JSON.parse(row.options),
+          correct: row.correct_index
+        });
+      }
+    } catch (e) {
+      console.error('DB quiz questions error:', e);
+    }
+
+    // Load from JSON file
+    try {
+      const jsonPath = path.join(__dirname, '..', 'data', 'quiz-questions.json');
+      const data = fs.readFileSync(jsonPath, 'utf-8');
+      const jsonQuestions = JSON.parse(data);
+      allQuestions.push(...jsonQuestions);
+    } catch (e) {}
+
+    res.json(allQuestions);
+  } catch (err) {
+    console.error('Quiz questions error:', err);
+    res.status(500).json([]);
   }
 });
 
