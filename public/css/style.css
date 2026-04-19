@@ -87,9 +87,6 @@ body {
   padding: 0;
   background: transparent;
   margin-bottom: 0;
-  /* Break out of .site-wrapper max-width */
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
 }
 
 .site-header::before,
@@ -104,10 +101,8 @@ body {
 
 .logo-container .header-desktop {
   width: 100%;
-  max-width: 1992px;
   height: auto;
   display: block;
-  margin: 0 auto;
 }
 
 .logo-container .header-mobile {
