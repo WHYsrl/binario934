@@ -79,7 +79,7 @@
   <script src="/js/audio.js"></script>
   <script src="/js/cappello.js"></script>
   <script>
-    // Show house assignment notice if user already has a house
+    // If user already has a house: show assignment notice, hide intro, CTA starts test
     window.addEventListener('authReady', () => {
       const user = window.currentUser;
       if (!user || !user.house) return;
@@ -93,18 +93,39 @@
       };
       const color = colors[houseLower] || '#4a2c10';
 
+      // Hide hat image, speech bubble and start button
+      const hatImage = document.querySelector('.hat-image');
+      const hatSpeech = document.getElementById('hat-speech');
+      const sortingOptions = document.getElementById('sorting-options');
+      if (hatImage) hatImage.style.display = 'none';
+      if (hatSpeech) hatSpeech.style.display = 'none';
+      if (sortingOptions) sortingOptions.style.display = 'none';
+
       const container = document.querySelector('.sorting-container');
       if (!container) return;
 
       const notice = document.createElement('div');
-      notice.style.cssText = 'text-align:center;padding:20px 15px;margin-bottom:20px;background:rgba(255,248,230,0.7);border:2px solid ' + color + ';border-radius:10px;';
+      notice.style.cssText = 'text-align:center;padding:25px 15px;';
       notice.innerHTML = `
         <img src="/images/houses/${houseLower}.png" alt="${user.house}"
-          style="width:90px;height:90px;border-radius:50%;border:3px solid ${color};margin-bottom:10px;">
-        <h3 style="color:${color};margin-bottom:6px;font-family:Cinzel,serif;font-size:1.1rem;">Il Cappello Parlante ti ha assegnato a ${user.house}</h3>
-        <p style="font-family:Lora,serif;color:#6b4e2e;font-style:italic;font-size:0.9rem;margin-top:8px;">Vuoi interpellare di nuovo il Cappello Parlante?</p>
+          style="width:100px;height:100px;border-radius:50%;border:3px solid ${color};margin-bottom:12px;">
+        <h3 style="color:${color};margin-bottom:8px;font-family:Cinzel,serif;font-size:1.1rem;">Il Cappello Parlante ti ha assegnato a ${user.house}</h3>
+        <button id="restart-sorting-btn" class="btn btn-secondary" style="margin-top:15px;font-style:italic;">
+          Vuoi interpellare di nuovo il Cappello Parlante?
+        </button>
       `;
       container.insertBefore(notice, container.firstChild);
+
+      // CTA click: remove notice, restore UI and start sorting
+      document.getElementById('restart-sorting-btn').addEventListener('click', () => {
+        notice.remove();
+        if (hatImage) hatImage.style.display = '';
+        if (hatSpeech) { hatSpeech.style.display = ''; hatSpeech.textContent = '"Ah, di nuovo tu! Vediamo se qualcosa è cambiato..."'; }
+        if (sortingOptions) sortingOptions.style.display = '';
+        // Click the start button automatically
+        const startBtn = sortingOptions.querySelector('.start-btn');
+        if (startBtn) startBtn.click();
+      });
     });
   </script>
 </body>
