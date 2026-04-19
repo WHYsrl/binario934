@@ -1,7 +1,5 @@
 const express = require('express');
 const { pool } = require('../db/database');
-const path = require('path');
-const fs = require('fs');
 const router = express.Router();
 
 // Save score
@@ -199,73 +197,37 @@ router.get('/profilo', async (req, res) => {
   }
 });
 
-// Get quiz questions (from DB + JSON fallback)
+// Get quiz questions (from DB only)
 router.get('/quiz-questions', async (req, res) => {
   try {
-    const allQuestions = [];
-
-    // Load from database first
-    try {
-      const result = await pool.query(
-        'SELECT * FROM quiz_questions WHERE active = true ORDER BY created_at DESC'
-      );
-      for (const row of result.rows) {
-        allQuestions.push({
-          id: 'db_' + row.id,
-          question: row.question,
-          options: JSON.parse(row.options),
-          correct: row.correct_index
-        });
-      }
-    } catch (e) {
-      console.error('DB quiz questions error:', e);
-    }
-
-    // Load from JSON file
-    try {
-      const jsonPath = path.join(__dirname, '..', 'data', 'quiz-questions.json');
-      const data = fs.readFileSync(jsonPath, 'utf-8');
-      const jsonQuestions = JSON.parse(data);
-      allQuestions.push(...jsonQuestions);
-    } catch (e) {}
-
-    res.json(allQuestions);
+    const result = await pool.query(
+      'SELECT * FROM quiz_questions WHERE active = true ORDER BY created_at DESC'
+    );
+    const questions = result.rows.map(row => ({
+      id: 'db_' + row.id,
+      question: row.question,
+      options: JSON.parse(row.options),
+      correct: row.correct_index
+    }));
+    res.json(questions);
   } catch (err) {
     console.error('Quiz questions error:', err);
     res.status(500).json([]);
   }
 });
 
-// Get crucipuzzle word sets (DB + JSON combined)
+// Get crucipuzzle word sets (from DB only)
 router.get('/crucipuzzle-words', async (req, res) => {
   try {
-    const allSets = [];
-
-    // Load from JSON file
-    try {
-      const jsonPath = path.join(__dirname, '..', 'data', 'crucipuzzle-words.json');
-      const data = fs.readFileSync(jsonPath, 'utf-8');
-      const jsonSets = JSON.parse(data);
-      allSets.push(...jsonSets);
-    } catch (e) {}
-
-    // Load from database
-    try {
-      const result = await pool.query(
-        'SELECT * FROM word_sets WHERE active = true ORDER BY created_at DESC'
-      );
-      for (const row of result.rows) {
-        allSets.push({
-          id: 'db_' + row.id,
-          theme: row.theme,
-          words: row.words.split(',').map(w => w.trim())
-        });
-      }
-    } catch (e) {
-      console.error('DB word sets error:', e);
-    }
-
-    res.json(allSets);
+    const result = await pool.query(
+      'SELECT * FROM word_sets WHERE active = true ORDER BY created_at DESC'
+    );
+    const sets = result.rows.map(row => ({
+      id: 'db_' + row.id,
+      theme: row.theme,
+      words: row.words.split(',').map(w => w.trim())
+    }));
+    res.json(sets);
   } catch (err) {
     console.error('Crucipuzzle words error:', err);
     res.status(500).json([]);

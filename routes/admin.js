@@ -90,32 +90,19 @@ router.get('/classifiche-stats', requireAdmin, async (req, res) => {
 
 // ===== CRUCIPUZZLE Word Sets =====
 
-// Get all word sets (from DB + JSON fallback)
+// Get all word sets (from DB only)
 router.get('/word-sets', requireAdmin, async (req, res) => {
   try {
     const result = await pool.query(
       'SELECT * FROM word_sets ORDER BY created_at DESC'
     );
 
-    // Also include the static JSON sets
-    let staticSets = [];
-    try {
-      const jsonPath = path.join(__dirname, '..', 'data', 'crucipuzzle-words.json');
-      const data = fs.readFileSync(jsonPath, 'utf-8');
-      staticSets = JSON.parse(data).map(s => ({
-        ...s,
-        source: 'file',
-        active: true,
-        words: s.words.join(', ')
-      }));
-    } catch (e) {}
-
     const dbSets = result.rows.map(r => ({
       ...r,
       source: 'database'
     }));
 
-    res.json({ dbSets, staticSets });
+    res.json({ dbSets, staticSets: [] });
   } catch (err) {
     console.error('Admin word-sets error:', err);
     res.status(500).json({ error: 'Errore nel caricamento' });
@@ -225,36 +212,19 @@ router.post('/word-sets/import', requireAdmin, async (req, res) => {
 
 // ===== QUIZ Question Management =====
 
-// Get all quiz questions (DB + JSON)
+// Get all quiz questions (from DB only)
 router.get('/quiz-questions', requireAdmin, async (req, res) => {
   try {
-    let dbQuestions = [];
-    try {
-      const result = await pool.query(
-        'SELECT * FROM quiz_questions ORDER BY created_at DESC'
-      );
-      dbQuestions = result.rows.map(r => ({
-        ...r,
-        options: JSON.parse(r.options),
-        source: 'database'
-      }));
-    } catch (e) {
-      console.error('DB quiz questions error:', e);
-    }
+    const result = await pool.query(
+      'SELECT * FROM quiz_questions ORDER BY created_at DESC'
+    );
+    const dbQuestions = result.rows.map(r => ({
+      ...r,
+      options: JSON.parse(r.options),
+      source: 'database'
+    }));
 
-    let staticQuestions = [];
-    try {
-      const jsonPath = path.join(__dirname, '..', 'data', 'quiz-questions.json');
-      const data = fs.readFileSync(jsonPath, 'utf-8');
-      staticQuestions = JSON.parse(data).map((q, i) => ({
-        ...q,
-        id: 'json_' + i,
-        source: 'file',
-        active: true
-      }));
-    } catch (e) {}
-
-    res.json({ dbQuestions, staticQuestions });
+    res.json({ dbQuestions, staticQuestions: [] });
   } catch (err) {
     console.error('Admin quiz questions error:', err);
     res.status(500).json({ error: 'Errore nel caricamento' });

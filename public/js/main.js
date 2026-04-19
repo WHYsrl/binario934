@@ -15,12 +15,12 @@ async function checkAuth() {
     if (data.user) {
       window.currentUser = data.user;
       if (authLink) {
-        const houseBadge = data.user.house
-          ? ` <span class="house-badge ${data.user.house.toLowerCase()}">${data.user.house}</span>`
+        const houseLabel = data.user.house
+          ? `<span class="user-house">(${data.user.house})</span>`
           : '';
-        authLink.innerHTML = `<span class="user-nav"><span class="username">${data.user.username}</span>${houseBadge} <button class="logout-btn" onclick="logout(event)">Esci</button></span>`;
-        authLink.href = '#';
-        authLink.onclick = (e) => e.preventDefault();
+        authLink.innerHTML = `<span class="user-nav"><a href="/profilo" class="username-link"><span class="username">${data.user.username}</span>${houseLabel}</a> <button class="logout-btn" onclick="logout(event)">Esci</button></span>`;
+        authLink.href = '/profilo';
+        authLink.onclick = null;
       }
     }
   } catch (e) {

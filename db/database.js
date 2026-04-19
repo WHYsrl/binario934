@@ -1,4 +1,6 @@
 const { Pool } = require('pg');
+const fs = require('fs');
+const path = require('path');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -59,6 +61,28 @@ async function initDB() {
       );
     `);
     console.log('Database tables ready');
+
+    // Auto-import quiz questions from JSON if DB table is empty
+    try {
+      const countRes = await client.query('SELECT COUNT(*) as c FROM quiz_questions');
+      if (parseInt(countRes.rows[0].c) === 0) {
+        const jsonPath = path.join(__dirname, '..', 'data', 'quiz-questions.json');
+        const data = fs.readFileSync(jsonPath, 'utf-8');
+        const questions = JSON.parse(data);
+        if (questions.length > 0) {
+          for (const q of questions) {
+            await client.query(
+              'INSERT INTO quiz_questions (question, options, correct_index) VALUES ($1, $2, $3)',
+              [q.question, JSON.stringify(q.options), q.correct]
+            );
+          }
+          console.log(`Imported ${questions.length} quiz questions from JSON to DB`);
+        }
+      }
+    } catch (e) {
+      // Silently skip if JSON doesn't exist or is empty
+      if (e.code !== 'ENOENT') console.error('Quiz import note:', e.message);
+    }
   } catch (err) {
     console.error('DB init error:', err);
   } finally {

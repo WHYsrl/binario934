@@ -215,10 +215,20 @@
       display: flex;
       gap: 8px;
       align-items: center;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
-    .quiz-option-row input[type="text"] { flex: 1; }
-    .quiz-option-row input[type="radio"] { flex: 0 0 auto; }
+    .quiz-option-row input[type="text"] {
+      flex: 1;
+      width: auto !important;
+      min-width: 0;
+    }
+    .quiz-option-row input[type="radio"] {
+      flex: 0 0 20px;
+      width: 20px !important;
+      height: 20px;
+      cursor: pointer;
+      accent-color: #1a472a;
+    }
     .quiz-option-row label { margin: 0; font-size: 0.8rem; }
   </style>
 </head>
@@ -240,7 +250,7 @@
         <li><a href="/quiz">Mini Quiz</a></li>
         <li><a href="/cappello">Test Cappello Parlante</a></li>
         <li><a href="/classifiche">Classifiche</a></li>
-        <li><a href="/profilo">Il Mio Profilo</a></li>
+
         <li><a href="/login" id="auth-link">Login/Registrati</a></li>
       </ul>
     </nav>
@@ -475,16 +485,9 @@
         const data = await res.json();
         container.innerHTML = '';
 
-        // Static sets (from JSON file)
-        if (data.staticSets && data.staticSets.length > 0) {
-          for (const set of data.staticSets) {
-            container.appendChild(createWordSetCard(set, 'file'));
-          }
-        }
-        // DB sets
         if (data.dbSets && data.dbSets.length > 0) {
           for (const set of data.dbSets) {
-            container.appendChild(createWordSetCard(set, 'database'));
+            container.appendChild(createWordSetCard(set));
           }
         }
         if (container.children.length === 0) {
@@ -495,41 +498,24 @@
       }
     }
 
-    function createWordSetCard(set, source) {
+    function createWordSetCard(set) {
       const card = document.createElement('div');
       card.className = 'word-set-card' + (set.active === false ? ' inactive' : '');
       const words = set.words || '';
       const wordCount = words.split(',').filter(w => w.trim()).length;
 
-      let actionsHtml = '';
-      if (source === 'database') {
-        actionsHtml = `
-          <div class="card-actions">
-            <button class="btn btn-secondary" onclick="editWordSet(${set.id})">Modifica</button>
-            <button class="btn btn-secondary" onclick="toggleWordSet(${set.id}, ${set.active !== false})">
-              ${set.active !== false ? 'Disattiva' : 'Attiva'}
-            </button>
-            <button class="btn btn-secondary btn-danger" onclick="deleteWordSet(${set.id})">Elimina</button>
-          </div>
-        `;
-      } else {
-        // File-based: offer import to DB for editing
-        actionsHtml = `
-          <div class="card-actions">
-            <button class="btn btn-secondary" onclick="importWordSetToDB('${encodeURIComponent(set.theme)}', '${encodeURIComponent(words)}')">
-              Importa in DB per modificare
-            </button>
-          </div>
-        `;
-      }
-
       card.innerHTML = `
         <h3>${set.theme}</h3>
-        <span class="source-badge ${source}">${source === 'file' ? 'File JSON' : 'Database'}</span>
         <span style="font-size:0.8rem;color:#6b3a1a;">${wordCount} parole</span>
         ${set.active === false ? '<span style="font-size:0.8rem;color:#740001;margin-left:8px;">DISATTIVATO</span>' : ''}
         <div class="words-preview">${words}</div>
-        ${actionsHtml}
+        <div class="card-actions">
+          <button class="btn btn-secondary" onclick="editWordSet(${set.id})">Modifica</button>
+          <button class="btn btn-secondary" onclick="toggleWordSet(${set.id}, ${set.active !== false})">
+            ${set.active !== false ? 'Disattiva' : 'Attiva'}
+          </button>
+          <button class="btn btn-secondary btn-danger" onclick="deleteWordSet(${set.id})">Elimina</button>
+        </div>
       `;
       return card;
     }
@@ -627,24 +613,6 @@
       loadWordSets();
     }
 
-    // Import JSON set to DB
-    async function importWordSetToDB(encodedTheme, encodedWords) {
-      const theme = decodeURIComponent(encodedTheme);
-      const words = decodeURIComponent(encodedWords);
-      const res = await fetch('/admin/word-sets/import', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ theme, words })
-      });
-      const data = await res.json();
-      if (data.success) {
-        alert('Set importato nel database! Ora puoi modificarlo.');
-        loadWordSets();
-      } else {
-        alert(data.error || 'Errore nell\'importazione');
-      }
-    }
-
     // ===== QUIZ =====
     async function loadQuizQuestions() {
       const container = document.getElementById('quiz-questions-list');
@@ -654,16 +622,9 @@
         const data = await res.json();
         container.innerHTML = '';
 
-        // Static questions
-        if (data.staticQuestions && data.staticQuestions.length > 0) {
-          for (const q of data.staticQuestions) {
-            container.appendChild(createQuizCard(q, 'file'));
-          }
-        }
-        // DB questions
         if (data.dbQuestions && data.dbQuestions.length > 0) {
           for (const q of data.dbQuestions) {
-            container.appendChild(createQuizCard(q, 'database'));
+            container.appendChild(createQuizCard(q));
           }
         }
         if (container.children.length === 0) {
@@ -674,50 +635,29 @@
       }
     }
 
-    function createQuizCard(q, source) {
+    function createQuizCard(q) {
       const card = document.createElement('div');
       card.className = 'quiz-card' + (q.active === false ? ' inactive' : '');
 
       const options = Array.isArray(q.options) ? q.options : [];
-      const correctIdx = q.correct_index !== undefined ? q.correct_index : q.correct;
+      const correctIdx = q.correct_index;
       const optionsHtml = options.map((opt, i) =>
         `<span style="display:block;font-size:0.85rem;color:${i === correctIdx ? '#1a472a;font-weight:bold' : '#6b4e2e'};">
           ${i === correctIdx ? '&#10004; ' : '&nbsp;&nbsp;&nbsp;'} ${opt}
         </span>`
       ).join('');
 
-      let actionsHtml = '';
-      if (source === 'database') {
-        actionsHtml = `
-          <div class="card-actions">
-            <button class="btn btn-secondary" onclick="editQuizQuestion(${q.id})">Modifica</button>
-            <button class="btn btn-secondary" onclick="toggleQuizQuestion(${q.id}, ${q.active !== false})">
-              ${q.active !== false ? 'Disattiva' : 'Attiva'}
-            </button>
-            <button class="btn btn-secondary btn-danger" onclick="deleteQuizQuestion(${q.id})">Elimina</button>
-          </div>
-        `;
-      } else {
-        const qData = encodeURIComponent(JSON.stringify({
-          question: q.question,
-          options: q.options,
-          correct: correctIdx
-        }));
-        actionsHtml = `
-          <div class="card-actions">
-            <button class="btn btn-secondary" onclick="importQuizToDB('${qData}')">
-              Importa in DB per modificare
-            </button>
-          </div>
-        `;
-      }
-
       card.innerHTML = `
         <h3>${q.question}</h3>
-        <span class="source-badge ${source}">${source === 'file' ? 'File JSON' : 'Database'}</span>
-        ${q.active === false ? '<span style="font-size:0.8rem;color:#740001;margin-left:8px;">DISATTIVATA</span>' : ''}
+        ${q.active === false ? '<span style="font-size:0.8rem;color:#740001;">DISATTIVATA</span>' : ''}
         <div style="margin-top:8px;">${optionsHtml}</div>
-        ${actionsHtml}
+        <div class="card-actions">
+          <button class="btn btn-secondary" onclick="editQuizQuestion(${q.id})">Modifica</button>
+          <button class="btn btn-secondary" onclick="toggleQuizQuestion(${q.id}, ${q.active !== false})">
+            ${q.active !== false ? 'Disattiva' : 'Attiva'}
+          </button>
+          <button class="btn btn-secondary btn-danger" onclick="deleteQuizQuestion(${q.id})">Elimina</button>
+        </div>
       `;
       return card;
     }
@@ -841,27 +781,6 @@
       if (!confirm('Sei sicuro di voler eliminare questa domanda?')) return;
       await fetch(`/admin/quiz-questions/${id}`, { method: 'DELETE' });
       loadQuizQuestions();
-    }
-
-    // Import JSON quiz to DB
-    async function importQuizToDB(encodedData) {
-      const q = JSON.parse(decodeURIComponent(encodedData));
-      const res = await fetch('/admin/quiz-questions/import', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          question: q.question,
-          options: q.options,
-          correct_index: q.correct
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        alert('Domanda importata nel database! Ora puoi modificarla.');
-        loadQuizQuestions();
-      } else {
-        alert(data.error || 'Errore nell\'importazione');
-      }
     }
 
     // ===== CLASSIFICHE =====
