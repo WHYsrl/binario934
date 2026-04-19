@@ -1,0 +1,49 @@
+[
+  {
+    "id": 1,
+    "theme": "Incantesimi",
+    "words": [
+      "EXPELLIARMUS",
+      "LUMOS",
+      "PATRONUS",
+      "ACCIO",
+      "ALOHOMORA",
+      "STUPEFICIUM",
+      "PROTEGO",
+      "OBLIVION",
+      "SECTUSEMPRA",
+      "RIDDIKULUS"
+    ]
+  },
+  {
+    "id": 2,
+    "theme": "Personaggi",
+    "words": [
+      "SILENTE",
+      "HAGRID",
+      "HERMIONE",
+      "VOLDEMORT",
+      "PITON",
+      "DOBBY",
+      "NEVILLE",
+      "BELLATRIX",
+      "DRACO",
+      "SIRIUS"
+    ]
+  },
+  {
+    "id": 3,
+    "theme": "Luoghi Magici",
+    "words": [
+      "HOGWARTS",
+      "HOGSMEADE",
+      "AZKABAN",
+      "GRINGOTT",
+      "DIAGON",
+      "GODRIC",
+      "NOTTURN",
+      "MINISTERO",
+      "FORTESCUE"
+    ]
+  }
+]

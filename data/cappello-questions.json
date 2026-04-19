@@ -1,0 +1,92 @@
+[
+  {
+    "question": "Il Cappello Parlante sussurra: \"Vedo una stanza buia con una porta chiusa a chiave... Cosa fai?\"",
+    "options": [
+      {"text": "Sfondo la porta senza esitare, il coraggio non aspetta!", "scores": {"grifondoro": 3, "serpeverde": 1, "corvonero": 0, "tassorosso": 0}},
+      {"text": "Cerco un modo astuto per aprirla senza farmi notare.", "scores": {"grifondoro": 0, "serpeverde": 3, "corvonero": 1, "tassorosso": 0}},
+      {"text": "Studio la serratura con attenzione, ci sara' un meccanismo logico.", "scores": {"grifondoro": 0, "serpeverde": 0, "corvonero": 3, "tassorosso": 1}},
+      {"text": "Chiedo aiuto a un amico, insieme siamo piu' forti.", "scores": {"grifondoro": 1, "serpeverde": 0, "corvonero": 0, "tassorosso": 3}}
+    ]
+  },
+  {
+    "question": "Il Cappello Parlante sussurra: \"Un compagno viene accusato ingiustamente... Come reagisci?\"",
+    "options": [
+      {"text": "Mi alzo in piedi e lo difendo davanti a tutti, costi quel che costi.", "scores": {"grifondoro": 3, "serpeverde": 0, "corvonero": 0, "tassorosso": 1}},
+      {"text": "Raccolgo prove in segreto per smascherare il vero colpevole.", "scores": {"grifondoro": 0, "serpeverde": 3, "corvonero": 1, "tassorosso": 0}},
+      {"text": "Analizzo la situazione con logica per trovare la verita'.", "scores": {"grifondoro": 0, "serpeverde": 1, "corvonero": 3, "tassorosso": 0}},
+      {"text": "Gli resto accanto e lo sostengo, qualunque cosa accada.", "scores": {"grifondoro": 1, "serpeverde": 0, "corvonero": 0, "tassorosso": 3}}
+    ]
+  },
+  {
+    "question": "Il Cappello Parlante sussurra: \"Quale pozione berresti se potessi sceglierne una sola?\"",
+    "options": [
+      {"text": "Felix Felicis, la fortuna premia chi osa!", "scores": {"grifondoro": 3, "serpeverde": 1, "corvonero": 0, "tassorosso": 0}},
+      {"text": "Pozione Polisucco, per scoprire i segreti degli altri.", "scores": {"grifondoro": 0, "serpeverde": 3, "corvonero": 1, "tassorosso": 0}},
+      {"text": "Una pozione della conoscenza, per sapere tutto.", "scores": {"grifondoro": 0, "serpeverde": 0, "corvonero": 3, "tassorosso": 1}},
+      {"text": "Una pozione curativa, per aiutare chi soffre.", "scores": {"grifondoro": 0, "serpeverde": 0, "corvonero": 1, "tassorosso": 3}}
+    ]
+  },
+  {
+    "question": "Il Cappello Parlante sussurra: \"Nella Foresta Proibita, un sentiero si divide in due. Uno e' buio e pericoloso, l'altro sicuro ma lungo. Quale scegli?\"",
+    "options": [
+      {"text": "Il sentiero pericoloso, l'avventura mi chiama!", "scores": {"grifondoro": 3, "serpeverde": 1, "corvonero": 0, "tassorosso": 0}},
+      {"text": "Il pericoloso, ma solo perche' porta al mio obiettivo piu' in fretta.", "scores": {"grifondoro": 1, "serpeverde": 3, "corvonero": 0, "tassorosso": 0}},
+      {"text": "Quello sicuro, cosi' posso osservare e imparare lungo la via.", "scores": {"grifondoro": 0, "serpeverde": 0, "corvonero": 3, "tassorosso": 1}},
+      {"text": "Quello sicuro, non voglio preoccupare chi mi aspetta.", "scores": {"grifondoro": 0, "serpeverde": 0, "corvonero": 1, "tassorosso": 3}}
+    ]
+  },
+  {
+    "question": "Il Cappello Parlante sussurra: \"Cosa desideri trovare nello Specchio delle Brame?\"",
+    "options": [
+      {"text": "Me stesso come il piu' grande mago di tutti i tempi, rispettato da tutti.", "scores": {"grifondoro": 2, "serpeverde": 1, "corvonero": 1, "tassorosso": 0}},
+      {"text": "Me stesso con potere e influenza, al comando del mondo magico.", "scores": {"grifondoro": 0, "serpeverde": 3, "corvonero": 1, "tassorosso": 0}},
+      {"text": "Me stesso circondato da libri, con la risposta a ogni mistero.", "scores": {"grifondoro": 0, "serpeverde": 0, "corvonero": 3, "tassorosso": 1}},
+      {"text": "Me stesso circondato dalla mia famiglia e dai miei amici, tutti felici.", "scores": {"grifondoro": 1, "serpeverde": 0, "corvonero": 0, "tassorosso": 3}}
+    ]
+  },
+  {
+    "question": "Il Cappello Parlante sussurra: \"Un drago blocca il passaggio. Hai poco tempo. Cosa fai?\"",
+    "options": [
+      {"text": "Lo affronto a viso aperto, non temo nessuna bestia!", "scores": {"grifondoro": 3, "serpeverde": 0, "corvonero": 0, "tassorosso": 1}},
+      {"text": "Lo distraggo con un'esca e passo mentre e' occupato.", "scores": {"grifondoro": 0, "serpeverde": 3, "corvonero": 1, "tassorosso": 0}},
+      {"text": "Studio il suo comportamento per trovare un punto debole.", "scores": {"grifondoro": 0, "serpeverde": 1, "corvonero": 3, "tassorosso": 0}},
+      {"text": "Cerco di calmarlo, forse e' spaventato quanto me.", "scores": {"grifondoro": 1, "serpeverde": 0, "corvonero": 0, "tassorosso": 3}}
+    ]
+  },
+  {
+    "question": "Il Cappello Parlante sussurra: \"Quale qualita' ammiri di piu' in un mago?\"",
+    "options": [
+      {"text": "L'audacia di affrontare l'ignoto senza paura.", "scores": {"grifondoro": 3, "serpeverde": 0, "corvonero": 1, "tassorosso": 0}},
+      {"text": "L'astuzia di raggiungere i propri obiettivi con ogni mezzo.", "scores": {"grifondoro": 0, "serpeverde": 3, "corvonero": 1, "tassorosso": 0}},
+      {"text": "La saggezza di comprendere cio' che altri non vedono.", "scores": {"grifondoro": 0, "serpeverde": 1, "corvonero": 3, "tassorosso": 0}},
+      {"text": "La dedizione verso gli amici e la giustizia.", "scores": {"grifondoro": 1, "serpeverde": 0, "corvonero": 0, "tassorosso": 3}}
+    ]
+  },
+  {
+    "question": "Il Cappello Parlante sussurra: \"Trovi un libro di magia proibita nella Sezione Riservata. Che fai?\"",
+    "options": [
+      {"text": "Lo apro subito, la curiosita' e' piu' forte della paura!", "scores": {"grifondoro": 3, "serpeverde": 1, "corvonero": 1, "tassorosso": 0}},
+      {"text": "Lo nascondo per usarlo quando mi servira'.", "scores": {"grifondoro": 0, "serpeverde": 3, "corvonero": 0, "tassorosso": 0}},
+      {"text": "Lo studio con cautela per capire cosa contiene.", "scores": {"grifondoro": 0, "serpeverde": 1, "corvonero": 3, "tassorosso": 0}},
+      {"text": "Lo riporto a un professore, potrebbe essere pericoloso.", "scores": {"grifondoro": 0, "serpeverde": 0, "corvonero": 0, "tassorosso": 3}}
+    ]
+  },
+  {
+    "question": "Il Cappello Parlante sussurra: \"Se potessi padroneggiare una materia a Hogwarts, quale sceglieresti?\"",
+    "options": [
+      {"text": "Difesa contro le Arti Oscure, per proteggere chi amo.", "scores": {"grifondoro": 3, "serpeverde": 0, "corvonero": 1, "tassorosso": 1}},
+      {"text": "Pozioni, la conoscenza e' potere e le pozioni danno grande potere.", "scores": {"grifondoro": 0, "serpeverde": 3, "corvonero": 1, "tassorosso": 0}},
+      {"text": "Incantesimi, ogni formula e' un enigma affascinante da risolvere.", "scores": {"grifondoro": 0, "serpeverde": 0, "corvonero": 3, "tassorosso": 1}},
+      {"text": "Erbologia, curare e coltivare le piante magiche e' meraviglioso.", "scores": {"grifondoro": 0, "serpeverde": 0, "corvonero": 1, "tassorosso": 3}}
+    ]
+  },
+  {
+    "question": "Il Cappello Parlante sussurra: \"Siamo alla fine... Dimmi, cosa temi di piu'?\"",
+    "options": [
+      {"text": "La codardia, non potrei vivere sapendo di non aver agito.", "scores": {"grifondoro": 3, "serpeverde": 0, "corvonero": 1, "tassorosso": 1}},
+      {"text": "L'irrilevanza, devo lasciare il segno nel mondo.", "scores": {"grifondoro": 0, "serpeverde": 3, "corvonero": 1, "tassorosso": 0}},
+      {"text": "L'ignoranza, non sapere e' la peggior condanna.", "scores": {"grifondoro": 0, "serpeverde": 1, "corvonero": 3, "tassorosso": 0}},
+      {"text": "La solitudine, una vita senza affetti non vale nulla.", "scores": {"grifondoro": 1, "serpeverde": 0, "corvonero": 0, "tassorosso": 3}}
+    ]
+  }
+]

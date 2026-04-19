@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Binario 9 e 3/4 - Login/Registrati</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="page-bg"></div>
+  <div class="site-wrapper">
+    <header class="site-header">
+      <div class="logo-container">
+        <a href="/"><img src="/images/logo_light.png" alt="Binario 9 e 3/4"></a>
+      </div>
+    </header>
+
+    <nav class="main-nav">
+      <button class="nav-toggle">&#9776;</button>
+      <ul class="nav-list">
+        <li><a href="/">Home Page</a></li>
+        <li><a href="/crucipuzzle">Crucipuzzle</a></li>
+        <li><a href="/cruciverba">Cruciverba</a></li>
+        <li><a href="/quiz">Mini Quiz</a></li>
+        <li><a href="/cappello">Test Cappello Parlante</a></li>
+        <li><a href="/classifiche">Classifiche</a></li>
+        <li><a href="/login" id="auth-link" class="active">Login/Registrati</a></li>
+      </ul>
+    </nav>
+
+    <main class="content-area">
+      <h1 class="page-title">Accedi al Mondo Magico</h1>
+
+      <div class="auth-container">
+        <div class="auth-tabs">
+          <button class="auth-tab active" data-tab="login">Login</button>
+          <button class="auth-tab" data-tab="register">Registrati</button>
+        </div>
+
+        <form id="login-form">
+          <div class="form-group">
+            <label for="login-username">Username o Email</label>
+            <input type="text" id="login-username" name="username" placeholder="Il tuo username o email" required>
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" name="password" placeholder="La tua password" required>
+          </div>
+          <div class="error-msg"></div>
+          <button type="submit" class="btn btn-primary">Accedi</button>
+        </form>
+
+        <form id="register-form" style="display:none;">
+          <div class="form-group">
+            <label for="reg-username">Username</label>
+            <input type="text" id="reg-username" name="username" placeholder="Scegli un nome da mago" required>
+          </div>
+          <div class="form-group">
+            <label for="reg-email">Email</label>
+            <input type="email" id="reg-email" name="email" placeholder="La tua email" required>
+          </div>
+          <div class="form-group">
+            <label for="reg-password">Password</label>
+            <input type="password" id="reg-password" name="password" placeholder="Minimo 6 caratteri" required>
+          </div>
+          <div class="form-group">
+            <label for="reg-confirm">Conferma Password</label>
+            <input type="password" id="reg-confirm" name="confirm" placeholder="Ripeti la password" required>
+          </div>
+          <div class="error-msg"></div>
+          <button type="submit" class="btn btn-primary">Registrati</button>
+        </form>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="social-links">
+        <a href="#">f</a>
+        <a href="#">𝕏</a>
+        <a href="#">IG</a>
+        <a href="#">♪</a>
+      </div>
+      <p>&copy; 2024 Binario 9 e 3/4</p>
+    </footer>
+  </div>
+
+  <script src="/js/main.js"></script>
+  <script src="/js/auth.js"></script>
+</body>
+</html>

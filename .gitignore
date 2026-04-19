@@ -1,0 +1,21 @@
+node_modules/
+.env
+*.db
+sessions/
+design/
+*.psd
+
+# Source images in root (originals, too large for git)
+/logo.png
+/logo_light.png
+/template.png
+/crucipuzzle.png
+/icona_cruciverba.png
+/quiz.png
+/_0000_cappello.png
+/_0001_cruciverba.png
+/_0002_quiz.png
+/_0003_crucipuzzle.png
+
+# Large logo in public (not used by the site)
+public/images/logo.png

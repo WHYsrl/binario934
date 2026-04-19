@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Quiz - Binario 9 e 3/4</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="page-bg"></div>
+  <div class="site-wrapper">
+    <header class="site-header">
+      <div class="logo-container">
+        <a href="/"><img src="/images/logo_light.png" alt="Binario 9 e 3/4"></a>
+      </div>
+    </header>
+
+    <nav class="main-nav">
+      <button class="nav-toggle">&#9776;</button>
+      <ul class="nav-list">
+        <li><a href="/">Home Page</a></li>
+        <li><a href="/crucipuzzle">Crucipuzzle</a></li>
+        <li><a href="/cruciverba">Cruciverba</a></li>
+        <li><a href="/quiz" class="active">Mini Quiz</a></li>
+        <li><a href="/cappello">Test Cappello Parlante</a></li>
+        <li><a href="/classifiche">Classifiche</a></li>
+        <li><a href="/login" id="auth-link">Login/Registrati</a></li>
+      </ul>
+    </nav>
+
+    <main class="content-area">
+      <h1 class="page-title">Mini Quiz</h1>
+
+      <div class="quiz-container">
+        <div class="quiz-progress">
+          <span id="question-num">Domanda 1 di 10</span>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <div class="quiz-question" id="question-text"></div>
+        <div class="quiz-options" id="quiz-options"></div>
+      </div>
+
+      <div class="result-overlay" id="result-overlay">
+        <div class="result-modal">
+          <h2>Quiz Completato!</h2>
+          <div class="final-score" id="final-score">0/100</div>
+          <div class="result-actions">
+            <button class="btn btn-primary" onclick="location.reload()">Gioca Ancora</button>
+            <a href="/classifiche" class="btn btn-secondary">Classifiche</a>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="social-links">
+        <a href="#">f</a>
+        <a href="#">𝕏</a>
+        <a href="#">IG</a>
+        <a href="#">♪</a>
+      </div>
+      <p>&copy; 2024 Binario 9 e 3/4</p>
+    </footer>
+  </div>
+
+  <script src="/js/main.js"></script>
+  <script src="/js/quiz.js"></script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+[
+  {
+    "question": "Quale casa di Hogwarts viene assegnata a Harry Potter dal Cappello Parlante?",
+    "options": ["Serpeverde", "Grifondoro", "Corvonero", "Tassorosso"],
+    "correct": 1
+  },
+  {
+    "question": "Qual e' il nome del gufo di Harry Potter?",
+    "options": ["Errol", "Edvige", "Pigwidgeon", "Fierobecco"],
+    "correct": 1
+  },
+  {
+    "question": "Chi e' il professore di Pozioni durante il primo anno di Harry a Hogwarts?",
+    "options": ["Horace Lumacorno", "Severus Piton", "Gilderoy Allock", "Minerva McGranitt"],
+    "correct": 1
+  },
+  {
+    "question": "Quale incantesimo viene usato per disarmare un avversario?",
+    "options": ["Stupeficium", "Expelliarmus", "Protego", "Petrificus Totalus"],
+    "correct": 1
+  },
+  {
+    "question": "Quanti Horcrux ha creato Voldemort intenzionalmente?",
+    "options": ["5", "6", "7", "8"],
+    "correct": 1
+  },
+  {
+    "question": "Come si chiama l'elfo domestico che cerca di impedire a Harry di tornare a Hogwarts?",
+    "options": ["Kreacher", "Winky", "Dobby", "Gripsec"],
+    "correct": 2
+  },
+  {
+    "question": "Qual e' il Patronus di Hermione Granger?",
+    "options": ["Un cervo", "Un gatto", "Una lontra", "Una lepre"],
+    "correct": 2
+  },
+  {
+    "question": "In quale anno Harry partecipa al Torneo Tremaghi?",
+    "options": ["Terzo anno", "Quarto anno", "Quinto anno", "Sesto anno"],
+    "correct": 1
+  },
+  {
+    "question": "Chi uccide Albus Silente?",
+    "options": ["Voldemort", "Bellatrix Lestrange", "Severus Piton", "Draco Malfoy"],
+    "correct": 2
+  },
+  {
+    "question": "Quale creatura custodisce la botola al primo piano di Hogwarts?",
+    "options": ["Un troll", "Fuffi, il cane a tre teste", "Un basilisco", "Aragog"],
+    "correct": 1
+  },
+  {
+    "question": "Come si chiama il fratello gemello di Fred Weasley?",
+    "options": ["Ron", "Percy", "George", "Charlie"],
+    "correct": 2
+  },
+  {
+    "question": "Quale materia insegna la professoressa McGranitt?",
+    "options": ["Difesa contro le Arti Oscure", "Pozioni", "Trasfigurazione", "Incantesimi"],
+    "correct": 2
+  },
+  {
+    "question": "Qual e' il nucleo della bacchetta di Harry Potter?",
+    "options": ["Crine di unicorno", "Corda di cuore di drago", "Piuma di fenice", "Pelo di Thestral"],
+    "correct": 2
+  },
+  {
+    "question": "Chi tradisce i genitori di Harry rivelando la loro posizione a Voldemort?",
+    "options": ["Sirius Black", "Remus Lupin", "Peter Minus", "Severus Piton"],
+    "correct": 2
+  },
+  {
+    "question": "Quale pozione permette di assumere le sembianze di un'altra persona?",
+    "options": ["Felix Felicis", "Amortentia", "Pozione Polisucco", "Veritaserum"],
+    "correct": 2
+  },
+  {
+    "question": "Come si chiama il drago che Hagrid vince in una partita a carte?",
+    "options": ["Fierobecco", "Norberto", "Ungaro Spinato", "Groppodorso Norvegese"],
+    "correct": 1
+  },
+  {
+    "question": "Quale oggetto magico mostra il desiderio piu' profondo di chi vi guarda?",
+    "options": ["Il Pensatoio", "Lo Specchio delle Brame", "La Sfera di Cristallo", "Il Ricordarello"],
+    "correct": 1
+  },
+  {
+    "question": "Qual e' il vero nome di Voldemort?",
+    "options": ["Salazar Serpeverde", "Tom Marvolo Riddle", "Gellert Grindelwald", "Cadmus Peverell"],
+    "correct": 1
+  },
+  {
+    "question": "In quale via abitano i Dursley?",
+    "options": ["Spinner's End", "Privet Drive numero 4", "Grimmauld Place numero 12", "Godric's Hollow"],
+    "correct": 1
+  },
+  {
+    "question": "Quale posizione gioca Harry nella squadra di Quidditch?",
+    "options": ["Battitore", "Cacciatore", "Portiere", "Cercatore"],
+    "correct": 3
+  },
+  {
+    "question": "Chi e' il padrino di Harry Potter?",
+    "options": ["Remus Lupin", "Albus Silente", "Sirius Black", "Arthur Weasley"],
+    "correct": 2
+  },
+  {
+    "question": "Quale creatura vive nella Camera dei Segreti?",
+    "options": ["Un Dissennatore", "Un basilisco", "Un ippogrifo", "Un troll"],
+    "correct": 1
+  },
+  {
+    "question": "Come si chiama la madre di Draco Malfoy?",
+    "options": ["Bellatrix", "Narcissa", "Andromeda", "Ninfadora"],
+    "correct": 1
+  },
+  {
+    "question": "Quale dei seguenti NON e' un Dono della Morte?",
+    "options": ["La Bacchetta di Sambuco", "La Pietra della Resurrezione", "Il Mantello dell'Invisibilita'", "Il Calice di Fuoco"],
+    "correct": 3
+  },
+  {
+    "question": "Chi insegna Difesa contro le Arti Oscure nel quinto anno di Harry?",
+    "options": ["Remus Lupin", "Alastor Moody", "Dolores Umbridge", "Gilderoy Allock"],
+    "correct": 2
+  },
+  {
+    "question": "Qual e' la forma del Patronus di Piton?",
+    "options": ["Un lupo", "Un cervo", "Una cerva", "Un serpente"],
+    "correct": 2
+  },
+  {
+    "question": "Come si chiama la banca dei maghi a Diagon Alley?",
+    "options": ["Gringott", "Ollivander", "Nocturne Alley", "Il Paiolo Magico"],
+    "correct": 0
+  },
+  {
+    "question": "Quale materia studia Hermione grazie alla Giratempo?",
+    "options": ["Aritmanzia", "Divinazione", "Studio dei Babbani", "Tutte le precedenti"],
+    "correct": 3
+  },
+  {
+    "question": "Chi vince la Coppa del Mondo di Quidditch nel quarto libro?",
+    "options": ["Inghilterra", "Bulgaria", "Irlanda", "Francia"],
+    "correct": 2
+  },
+  {
+    "question": "Quale incantesimo produce luce dalla punta della bacchetta?",
+    "options": ["Nox", "Lumos", "Accio", "Alohomora"],
+    "correct": 1
+  }
+]
