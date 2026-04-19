@@ -270,6 +270,7 @@
           <div class="admin-tabs">
             <button class="admin-tab active" data-tab="crucipuzzle">Crucipuzzle</button>
             <button class="admin-tab" data-tab="quiz">Quiz</button>
+            <button class="admin-tab" data-tab="classifiche">Classifiche</button>
           </div>
 
           <!-- CRUCIPUZZLE TAB -->
@@ -292,6 +293,30 @@
             <h3 style="font-family:Cinzel,serif;color:#2a1a0a;margin-bottom:15px;">Set Esistenti</h3>
             <div id="word-sets-list">
               <p style="text-align:center;color:#8b5e3c;">Caricamento...</p>
+            </div>
+          </div>
+
+          <!-- CLASSIFICHE TAB -->
+          <div class="admin-tab-content" id="tab-classifiche">
+            <div style="margin-bottom:25px;">
+              <h3 style="font-family:Cinzel,serif;color:#2a1a0a;margin-bottom:15px;">Statistiche Classifiche</h3>
+              <div id="classifiche-stats">
+                <p style="text-align:center;color:#8b5e3c;">Caricamento...</p>
+              </div>
+            </div>
+
+            <div class="new-set-form" style="border-color:#740001;">
+              <h3 style="color:#740001;">Reset Classifiche</h3>
+              <p style="font-family:Lora,serif;color:#6b4e2e;margin-bottom:15px;font-size:0.9rem;">
+                Attenzione: questa operazione elimina permanentemente i punteggi. Non si può annullare.
+              </p>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn btn-secondary btn-danger" onclick="resetLeaderboard('crucipuzzle')">Reset Crucipuzzle</button>
+                <button class="btn btn-secondary btn-danger" onclick="resetLeaderboard('cruciverba')">Reset Cruciverba</button>
+                <button class="btn btn-secondary btn-danger" onclick="resetLeaderboard('quiz')">Reset Quiz</button>
+                <button class="btn btn-secondary btn-danger" style="background:rgba(116,0,1,0.1);" onclick="resetLeaderboard('all')">Reset TUTTE le classifiche</button>
+              </div>
+              <div class="admin-msg" id="reset-msg"></div>
             </div>
           </div>
 
@@ -420,6 +445,7 @@
       panelSection.classList.add('visible');
       loadWordSets();
       loadQuizQuestions();
+      loadClassificheStats();
     }
 
     function showMsg(id, text, type) {
@@ -835,6 +861,58 @@
         loadQuizQuestions();
       } else {
         alert(data.error || 'Errore nell\'importazione');
+      }
+    }
+
+    // ===== CLASSIFICHE =====
+    const GAME_NAMES = { crucipuzzle: 'Crucipuzzle', cruciverba: 'Cruciverba', quiz: 'Quiz' };
+
+    async function loadClassificheStats() {
+      const container = document.getElementById('classifiche-stats');
+      try {
+        const res = await fetch('/admin/classifiche-stats');
+        const data = await res.json();
+
+        if (data.total === 0) {
+          container.innerHTML = '<p style="text-align:center;color:#8b5e3c;">Nessun punteggio registrato.</p>';
+          return;
+        }
+
+        let html = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;margin-bottom:15px;">`;
+        for (const game of data.games) {
+          html += `
+            <div style="background:rgba(201,168,76,0.08);border:2px solid rgba(201,168,76,0.25);border-radius:8px;padding:15px;text-align:center;">
+              <div style="font-family:Cinzel,serif;color:#4a2c10;font-weight:600;margin-bottom:8px;">${GAME_NAMES[game.game_type] || game.game_type}</div>
+              <div style="font-size:1.5rem;font-weight:bold;color:#c9a84c;">${game.entries}</div>
+              <div style="font-size:0.8rem;color:#6b4e2e;">punteggi da ${game.players} giocatori</div>
+            </div>
+          `;
+        }
+        html += `</div>`;
+        html += `<p style="text-align:center;font-size:0.9rem;color:#6b4e2e;">Totale: <strong>${data.total}</strong> punteggi registrati</p>`;
+        container.innerHTML = html;
+      } catch (e) {
+        container.innerHTML = '<p style="text-align:center;color:#740001;">Errore nel caricamento.</p>';
+      }
+    }
+
+    async function resetLeaderboard(gameType) {
+      const label = gameType === 'all' ? 'TUTTE le classifiche' : `la classifica di ${GAME_NAMES[gameType] || gameType}`;
+      if (!confirm(`Sei sicuro di voler resettare ${label}? Questa azione non è reversibile.`)) return;
+      if (gameType === 'all' && !confirm('CONFERMA: tutti i punteggi di tutti i giochi verranno eliminati permanentemente. Procedere?')) return;
+
+      try {
+        const res = await fetch(`/admin/classifiche?game_type=${gameType}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          showMsg('reset-msg', `Eliminati ${data.deleted} punteggi${gameType !== 'all' ? ' di ' + (GAME_NAMES[gameType] || gameType) : ''}.`, 'success');
+          loadClassificheStats();
+          setTimeout(() => { document.getElementById('reset-msg').style.display = 'none'; }, 4000);
+        } else {
+          showMsg('reset-msg', data.error || 'Errore nel reset', 'error');
+        }
+      } catch (e) {
+        showMsg('reset-msg', 'Errore di connessione', 'error');
       }
     }
 

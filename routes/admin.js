@@ -49,6 +49,45 @@ router.get('/status', (req, res) => {
   res.json({ isAdmin: !!req.session.isAdmin });
 });
 
+// ===== LEADERBOARD MANAGEMENT =====
+
+// Reset leaderboard (all games or specific game)
+router.delete('/classifiche', requireAdmin, async (req, res) => {
+  try {
+    const { game_type } = req.query;
+
+    if (game_type && game_type !== 'all') {
+      const validGames = ['crucipuzzle', 'cruciverba', 'quiz'];
+      if (!validGames.includes(game_type)) {
+        return res.status(400).json({ error: 'Tipo di gioco non valido' });
+      }
+      const result = await pool.query('DELETE FROM scores WHERE game_type = $1', [game_type]);
+      res.json({ success: true, deleted: result.rowCount, game_type });
+    } else {
+      const result = await pool.query('DELETE FROM scores');
+      res.json({ success: true, deleted: result.rowCount, game_type: 'all' });
+    }
+  } catch (err) {
+    console.error('Admin reset leaderboard error:', err);
+    res.status(500).json({ error: 'Errore nel reset della classifica' });
+  }
+});
+
+// Get leaderboard stats for admin
+router.get('/classifiche-stats', requireAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT game_type, COUNT(*) as entries, COUNT(DISTINCT user_id) as players
+      FROM scores GROUP BY game_type ORDER BY game_type
+    `);
+    const totalRes = await pool.query('SELECT COUNT(*) as total FROM scores');
+    res.json({ games: result.rows, total: parseInt(totalRes.rows[0].total) });
+  } catch (err) {
+    console.error('Admin classifiche stats error:', err);
+    res.status(500).json({ error: 'Errore nel caricamento' });
+  }
+});
+
 // ===== CRUCIPUZZLE Word Sets =====
 
 // Get all word sets (from DB + JSON fallback)
