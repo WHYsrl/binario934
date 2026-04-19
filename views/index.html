@@ -93,16 +93,16 @@
       const color = colors[houseLower] || '#4a2c10';
 
       card.innerHTML = `
-        <div style="text-align:center;padding:10px 0;">
+        <a href="/cappello" style="display:block;text-decoration:none;color:inherit;text-align:center;padding:10px 0;">
           <img src="/images/houses/${houseLower}.png" alt="${user.house}"
             style="width:90px;height:90px;border-radius:50%;border:3px solid ${color};margin-bottom:8px;">
           <h3 style="color:${color};margin-bottom:6px;font-size:0.95rem;">Il Cappello Parlante ti ha assegnato a ${user.house}</h3>
-        </div>
-        <a href="/cappello" style="display:block;text-align:center;font-size:0.85rem;color:#6b4e2e;margin-top:8px;text-decoration:none;font-family:Lora,serif;font-style:italic;">
-          Vuoi interpellare di nuovo il Cappello Parlante?
+          <p style="font-size:0.85rem;color:#6b4e2e;margin-top:8px;font-family:Lora,serif;font-style:italic;">
+            Vuoi interpellare di nuovo il Cappello Parlante?
+          </p>
         </a>
       `;
-      card.style.cursor = 'default';
+      card.style.cursor = 'pointer';
     });
   </script>
 </body>
