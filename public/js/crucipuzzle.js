@@ -66,6 +66,7 @@
     // Render
     renderGrid();
     renderWordList();
+    updateScore();
 
     // Start timer
     elapsedSeconds = 0;
@@ -77,8 +78,14 @@
     }, 1000);
 
     // Hide result overlay
-    if (resultOverlay) resultOverlay.classList.remove('visible');
-    if (scoreEl) scoreEl.textContent = '';
+    if (resultOverlay) {
+      resultOverlay.classList.remove('visible');
+      resultOverlay.classList.remove('show');
+    }
+
+    // Remove any old feedback
+    const oldFeedback = document.getElementById('game-feedback');
+    if (oldFeedback) oldFeedback.remove();
 
     startBtn.textContent = 'Ricomincia';
   }
@@ -87,14 +94,12 @@
   function generateGrid(wordList) {
     const g = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(''));
 
-    // Sort words longest first for better placement
     const sorted = [...wordList].sort((a, b) => b.length - a.length);
 
     for (const word of sorted) {
       placeWord(g, word);
     }
 
-    // Fill empty cells with random letters
     for (let r = 0; r < GRID_SIZE; r++) {
       for (let c = 0; c < GRID_SIZE; c++) {
         if (!g[r][c]) {
@@ -164,6 +169,12 @@
 
   function renderWordList() {
     wordListEl.innerHTML = '';
+    if (currentSet && currentSet.theme) {
+      const themeLabel = document.createElement('div');
+      themeLabel.style.cssText = 'width:100%; text-align:center; font-family:Cinzel,serif; font-size:0.9rem; color:#4a2c10; margin-bottom:5px; font-weight:600;';
+      themeLabel.textContent = 'Tema: ' + currentSet.theme;
+      wordListEl.appendChild(themeLabel);
+    }
     for (const word of words) {
       const span = document.createElement('span');
       span.classList.add('word');
@@ -173,24 +184,27 @@
     }
   }
 
+  function updateScore() {
+    if (scoreEl) {
+      scoreEl.textContent = `Parole: ${foundWords.size}/${words.length}`;
+    }
+  }
+
   // --- Selection logic ---
   function handleCellClick(row, col) {
     if (!words.length) return;
 
     if (!selectionStart) {
-      // First click — start selection
       selectionStart = { row, col };
       clearHighlights();
       getCell(row, col).classList.add('selected');
     } else {
-      // Second click — end selection
       const start = selectionStart;
       selectionStart = null;
 
       const cells = getCellsInLine(start.row, start.col, row, col);
 
       if (!cells) {
-        // Not a valid straight line
         clearHighlights();
         return;
       }
@@ -219,10 +233,22 @@
         const wordSpan = wordListEl.querySelector(`[data-word="${matchedWord}"]`);
         if (wordSpan) wordSpan.classList.add('found');
 
+        // Play correct sound
+        if (typeof AudioManager !== 'undefined') AudioManager.play('correct');
+
+        // Update score display
+        updateScore();
+
+        // Show mini feedback
+        showScorePopup(`+${matchedWord}!`);
+
         // Check win
         if (foundWords.size === words.length) {
           endGame();
         }
+      } else {
+        // Wrong selection feedback
+        if (typeof AudioManager !== 'undefined') AudioManager.play('wrong');
       }
     }
   }
@@ -239,7 +265,6 @@
     const dr = r2 - r1;
     const dc = c2 - c1;
 
-    // Must be a straight line: horizontal, vertical, or diagonal (45 degrees)
     const absDr = Math.abs(dr);
     const absDc = Math.abs(dc);
 
@@ -264,18 +289,46 @@
   }
 
   // --- End game ---
-  function endGame() {
+  async function endGame() {
     clearInterval(timerInterval);
 
     // Score: base 1000, lose points for time
     const score = Math.max(100, 1000 - elapsedSeconds * 5);
 
-    if (scoreEl) scoreEl.textContent = score;
+    // Play victory sound and show celebration
+    if (typeof AudioManager !== 'undefined') AudioManager.play('victory');
+    showCelebration();
+
     if (finalScoreEl) finalScoreEl.textContent = score;
     if (finalTimeEl) finalTimeEl.textContent = formatTime(elapsedSeconds);
-    if (resultOverlay) resultOverlay.classList.add('visible');
 
-    // Try to save score
+    // Build result modal content
+    const modal = resultOverlay ? resultOverlay.querySelector('.result-modal') : null;
+    if (modal) {
+      // Remove old dynamic content
+      modal.querySelectorAll('.result-detail, .login-prompt').forEach(el => el.remove());
+
+      const detailDiv = document.createElement('div');
+      detailDiv.className = 'result-detail';
+      detailDiv.innerHTML = `Hai trovato tutte le <strong>${words.length} parole</strong> in <strong>${formatTime(elapsedSeconds)}</strong>!`;
+      modal.querySelector('.final-time').after(detailDiv);
+
+      // Show leaderboard position
+      const rankInfo = await getLeaderboardPosition('crucipuzzle', score);
+      if (rankInfo) {
+        const rankDiv = document.createElement('div');
+        rankDiv.className = 'result-detail';
+        rankDiv.innerHTML = `Sei al <span class="rank">${rankInfo.position}° posto</span> su ${rankInfo.total} giocatori!`;
+        detailDiv.after(rankDiv);
+      }
+
+      // Login prompt if not logged in
+      showLoginPrompt(modal);
+    }
+
+    if (resultOverlay) resultOverlay.classList.add('show');
+
+    // Save score
     try {
       saveScore('crucipuzzle', score, elapsedSeconds);
     } catch (e) {

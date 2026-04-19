@@ -141,6 +141,8 @@ function initCappello() {
 
     setTimeout(() => {
       hatSpeech.classList.remove('thinking');
+      if (typeof AudioManager !== 'undefined') AudioManager.play('victory');
+      showCelebration();
       showResult();
     }, 2000);
   }

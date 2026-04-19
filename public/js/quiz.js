@@ -13,6 +13,7 @@ const ADVANCE_DELAY = 1500;
 let questions = [];
 let currentIndex = 0;
 let totalScore = 0;
+let correctCount = 0;
 
 async function initQuiz() {
   try {
@@ -21,6 +22,16 @@ async function initQuiz() {
     questions = shuffleArray(allQuestions).slice(0, TOTAL_QUESTIONS);
     currentIndex = 0;
     totalScore = 0;
+    correctCount = 0;
+
+    // Hide result overlay
+    const overlay = document.querySelector('.result-overlay');
+    if (overlay) {
+      overlay.classList.remove('show');
+      overlay.classList.remove('active');
+      overlay.classList.remove('visible');
+    }
+
     showQuestion();
   } catch (e) {
     console.error('Failed to load quiz questions:', e);
@@ -30,7 +41,6 @@ async function initQuiz() {
 function showQuestion() {
   const q = questions[currentIndex];
 
-  // Update progress text and bar
   const questionNum = document.getElementById('question-num');
   const progressFill = document.getElementById('progress-fill');
   const questionText = document.getElementById('question-text');
@@ -48,7 +58,6 @@ function showQuestion() {
     questionText.textContent = q.question;
   }
 
-  // Render options
   if (optionsContainer) {
     optionsContainer.innerHTML = '';
     q.options.forEach((option, index) => {
@@ -70,13 +79,19 @@ function handleAnswer(selectedIndex) {
   buttons.forEach(btn => btn.classList.add('disabled'));
 
   if (selectedIndex === q.correct) {
-    // Correct answer
     buttons[selectedIndex].classList.add('correct');
     totalScore += POINTS_PER_QUESTION;
+    correctCount++;
+
+    // Audio + feedback
+    if (typeof AudioManager !== 'undefined') AudioManager.play('correct');
+    showScorePopup('+10 punti!');
   } else {
-    // Wrong answer - highlight selected as wrong, show correct
     buttons[selectedIndex].classList.add('wrong');
     buttons[q.correct].classList.add('correct');
+
+    // Audio
+    if (typeof AudioManager !== 'undefined') AudioManager.play('wrong');
   }
 
   // Auto-advance after delay
@@ -90,16 +105,67 @@ function handleAnswer(selectedIndex) {
   }, ADVANCE_DELAY);
 }
 
-function showResults() {
+async function showResults() {
   const overlay = document.querySelector('.result-overlay');
   const finalScore = document.getElementById('final-score');
+  const modal = overlay ? overlay.querySelector('.result-modal') : null;
 
   if (finalScore) {
-    finalScore.textContent = totalScore;
+    finalScore.textContent = `${totalScore}/${TOTAL_QUESTIONS * POINTS_PER_QUESTION}`;
+  }
+
+  // Remove old dynamic content
+  if (modal) {
+    modal.querySelectorAll('.result-detail, .login-prompt').forEach(el => el.remove());
+  }
+
+  // Choose title and sound based on performance
+  const titleEl = modal ? modal.querySelector('h2') : null;
+  if (correctCount >= 8) {
+    if (titleEl) titleEl.textContent = 'Eccezionale!';
+    if (typeof AudioManager !== 'undefined') AudioManager.play('victory');
+    showCelebration();
+  } else if (correctCount >= 5) {
+    if (titleEl) titleEl.textContent = 'Ben fatto!';
+    if (typeof AudioManager !== 'undefined') AudioManager.play('victory');
+  } else {
+    if (titleEl) titleEl.textContent = 'Quiz Completato';
+    if (typeof AudioManager !== 'undefined') AudioManager.play('lose');
+  }
+
+  // Add detail text
+  if (modal) {
+    const detailDiv = document.createElement('div');
+    detailDiv.className = 'result-detail';
+    const msgs = [];
+    if (correctCount === TOTAL_QUESTIONS) {
+      msgs.push('Perfetto! Conosci il mondo magico alla perfezione!');
+    } else if (correctCount >= 8) {
+      msgs.push('Quasi perfetto! Sei un vero mago!');
+    } else if (correctCount >= 5) {
+      msgs.push(`${correctCount} risposte corrette su ${TOTAL_QUESTIONS}. Buona conoscenza!`);
+    } else {
+      msgs.push(`${correctCount} risposte corrette su ${TOTAL_QUESTIONS}. Riprova per migliorare!`);
+    }
+    detailDiv.innerHTML = msgs.join('<br>');
+    const actionsEl = modal.querySelector('.result-actions');
+    if (actionsEl) actionsEl.before(detailDiv);
+
+    // Leaderboard position
+    const rankInfo = await getLeaderboardPosition('quiz', totalScore);
+    if (rankInfo) {
+      const rankDiv = document.createElement('div');
+      rankDiv.className = 'result-detail';
+      rankDiv.innerHTML = `Sei al <span class="rank">${rankInfo.position}° posto</span> su ${rankInfo.total} giocatori!`;
+      detailDiv.after(rankDiv);
+    }
+
+    // Login prompt
+    showLoginPrompt(modal);
   }
 
   if (overlay) {
-    overlay.classList.add('active');
+    overlay.classList.add('show');
   }
 
   // Save score to server
@@ -107,9 +173,5 @@ function showResults() {
 }
 
 function restartQuiz() {
-  const overlay = document.querySelector('.result-overlay');
-  if (overlay) {
-    overlay.classList.remove('active');
-  }
   initQuiz();
 }

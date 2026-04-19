@@ -2,37 +2,175 @@
   {
     "id": 1,
     "size": 13,
+    "theme": "Mondo di Harry Potter",
     "words": [
-      {"word": "HAGRID", "row": 0, "col": 3, "direction": "down", "clue": "Il guardiacaccia di Hogwarts", "number": 1},
-      {"word": "HERMIONE", "row": 0, "col": 3, "direction": "across", "clue": "La strega piu' brillante della sua eta'", "number": 1},
-      {"word": "EDVIGE", "row": 0, "col": 7, "direction": "down", "clue": "Il gufo bianco di Harry", "number": 2},
-      {"word": "SILENTE", "row": 2, "col": 0, "direction": "across", "clue": "Il preside di Hogwarts con la barba lunga", "number": 3},
-      {"word": "LUMOS", "row": 2, "col": 2, "direction": "down", "clue": "Incantesimo che produce luce dalla bacchetta", "number": 4},
-      {"word": "PATRONUS", "row": 4, "col": 2, "direction": "across", "clue": "Incantesimo protettivo contro i Dissennatori", "number": 5},
-      {"word": "PITON", "row": 4, "col": 6, "direction": "down", "clue": "Il professore di Pozioni dal mantello nero", "number": 6},
-      {"word": "NIMBUS", "row": 6, "col": 0, "direction": "across", "clue": "La prima scopa volante di Harry (__ Duemila)", "number": 7},
-      {"word": "NEVILLE", "row": 6, "col": 0, "direction": "down", "clue": "Paciock, il ragazzo smemorato di Grifondoro", "number": 7},
-      {"word": "DOBBY", "row": 8, "col": 4, "direction": "across", "clue": "L'elfo domestico liberato da Harry con un calzino", "number": 8},
-      {"word": "DRACO", "row": 8, "col": 8, "direction": "down", "clue": "Malfoy, il rivale di Harry a Serpeverde", "number": 9},
-      {"word": "VOLDEMORT", "row": 10, "col": 1, "direction": "across", "clue": "Colui-Che-Non-Deve-Essere-Nominato", "number": 10}
+      {
+        "word": "PATRONUS",
+        "row": 0,
+        "col": 0,
+        "direction": "across",
+        "clue": "Incantesimo protettivo contro i Dissennatori",
+        "number": 1
+      },
+      {
+        "word": "PITON",
+        "row": 0,
+        "col": 0,
+        "direction": "down",
+        "clue": "Il severo professore di Pozioni dal mantello nero",
+        "number": 1
+      },
+      {
+        "word": "RON",
+        "row": 0,
+        "col": 3,
+        "direction": "down",
+        "clue": "Weasley, il miglior amico dai capelli rossi di Harry",
+        "number": 2
+      },
+      {
+        "word": "NIMBUS",
+        "row": 0,
+        "col": 5,
+        "direction": "down",
+        "clue": "La scopa volante Duemila regalata a Harry",
+        "number": 3
+      },
+      {
+        "word": "SILENTE",
+        "row": 1,
+        "col": 4,
+        "direction": "across",
+        "clue": "Albus, il preside di Hogwarts dalla lunga barba bianca",
+        "number": 4
+      },
+      {
+        "word": "DOBBY",
+        "row": 4,
+        "col": 3,
+        "direction": "down",
+        "clue": "L'elfo domestico liberato da Harry con un calzino",
+        "number": 5
+      },
+      {
+        "word": "EDVIGE",
+        "row": 6,
+        "col": 4,
+        "direction": "across",
+        "clue": "Il gufo delle nevi compagno fedele di Harry",
+        "number": 6
+      },
+      {
+        "word": "GINNY",
+        "row": 6,
+        "col": 8,
+        "direction": "down",
+        "clue": "Weasley, la sorella minore di Ron e futura moglie di Harry",
+        "number": 7
+      },
+      {
+        "word": "LUMOS",
+        "row": 7,
+        "col": 7,
+        "direction": "down",
+        "clue": "Incantesimo che produce luce dalla punta della bacchetta",
+        "number": 8
+      },
+      {
+        "word": "DRACO",
+        "row": 10,
+        "col": 0,
+        "direction": "across",
+        "clue": "Malfoy, il rivale biondo di Harry a Serpeverde",
+        "number": 9
+      }
     ]
   },
   {
     "id": 2,
     "size": 13,
+    "theme": "Hogwarts e Dintorni",
     "words": [
-      {"word": "GRIFONDORO", "row": 0, "col": 1, "direction": "across", "clue": "La casa del coraggio e del valore", "number": 1},
-      {"word": "GINNY", "row": 0, "col": 5, "direction": "down", "clue": "La sorella minore di Ron, futura moglie di Harry", "number": 2},
-      {"word": "AZKABAN", "row": 2, "col": 0, "direction": "across", "clue": "La prigione dei maghi sorvegliata dai Dissennatori", "number": 3},
-      {"word": "ACCIO", "row": 2, "col": 0, "direction": "down", "clue": "Incantesimo di richiamo per attirare oggetti", "number": 3},
-      {"word": "HORCRUX", "row": 4, "col": 3, "direction": "across", "clue": "Oggetto in cui Voldemort nasconde un frammento d'anima", "number": 4},
-      {"word": "HOGWARTS", "row": 4, "col": 3, "direction": "down", "clue": "La scuola di magia e stregoneria", "number": 4},
-      {"word": "RAPTOR", "row": 6, "col": 0, "direction": "across", "clue": "Tipo di drago ungaro spinato (__)", "number": 5},
-      {"word": "WEASLEY", "row": 6, "col": 5, "direction": "down", "clue": "La famiglia dai capelli rossi amica di Harry", "number": 6},
-      {"word": "SERPEVERDE", "row": 8, "col": 2, "direction": "across", "clue": "La casa dell'ambizione fondata da Salazar", "number": 7},
-      {"word": "SIRIUS", "row": 8, "col": 5, "direction": "down", "clue": "Black, il padrino di Harry evaso da Azkaban", "number": 8},
-      {"word": "FENICE", "row": 10, "col": 0, "direction": "across", "clue": "L'uccello magico di Silente, Fawkes", "number": 9},
-      {"word": "ALLOCK", "row": 10, "col": 6, "direction": "down", "clue": "Gilderoy, il vanitoso professore di Difesa", "number": 10}
+      {
+        "word": "HOGWARTS",
+        "row": 0,
+        "col": 0,
+        "direction": "across",
+        "clue": "La scuola di magia e stregoneria in Scozia",
+        "number": 1
+      },
+      {
+        "word": "HERMIONE",
+        "row": 0,
+        "col": 0,
+        "direction": "down",
+        "clue": "Granger, la strega piu' brillante della sua generazione",
+        "number": 1
+      },
+      {
+        "word": "GINNY",
+        "row": 0,
+        "col": 2,
+        "direction": "down",
+        "clue": "Weasley, la coraggiosa sorella minore di Ron",
+        "number": 2
+      },
+      {
+        "word": "WEASLEY",
+        "row": 0,
+        "col": 3,
+        "direction": "down",
+        "clue": "Il cognome della famiglia dai capelli rossi amica di Harry",
+        "number": 3
+      },
+      {
+        "word": "ACCIO",
+        "row": 0,
+        "col": 4,
+        "direction": "down",
+        "clue": "Incantesimo di richiamo per attirare oggetti",
+        "number": 4
+      },
+      {
+        "word": "TONKS",
+        "row": 0,
+        "col": 6,
+        "direction": "down",
+        "clue": "Nymphadora, la metamorfomagus dell'Ordine della Fenice",
+        "number": 5
+      },
+      {
+        "word": "SNAPE",
+        "row": 0,
+        "col": 7,
+        "direction": "down",
+        "clue": "Il cognome inglese del professor Piton",
+        "number": 6
+      },
+      {
+        "word": "EDVIGE",
+        "row": 6,
+        "col": 5,
+        "direction": "across",
+        "clue": "Il gufo delle nevi compagno fedele di Harry",
+        "number": 7
+      },
+      {
+        "word": "DRACO",
+        "row": 8,
+        "col": 0,
+        "direction": "across",
+        "clue": "Malfoy, il rivale biondo di Harry a Serpeverde",
+        "number": 8
+      },
+      {
+        "word": "LUMOS",
+        "row": 8,
+        "col": 5,
+        "direction": "down",
+        "clue": "Incantesimo che produce luce dalla bacchetta",
+        "number": 9
+      }
     ]
   }
 ]

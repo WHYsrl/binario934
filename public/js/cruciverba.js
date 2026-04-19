@@ -43,16 +43,17 @@ function loadNewPuzzle() {
   buildGrid();
   renderGrid();
   renderClues();
+
+  // Show timer display
+  updateTimerDisplay();
 }
 
 // ---- Grid building ----
 
 function buildGrid() {
   const size = currentPuzzle.size;
-  // Initialize all cells as null (black)
   grid = Array.from({ length: size }, () => Array(size).fill(null));
 
-  // Place words
   for (const w of currentPuzzle.words) {
     const letters = w.word.split('');
     for (let i = 0; i < letters.length; i++) {
@@ -61,13 +62,10 @@ function buildGrid() {
       if (r < size && c < size) {
         if (!grid[r][c]) {
           grid[r][c] = { letter: letters[i].toUpperCase(), number: null };
-        } else {
-          // Cell already exists (intersection) - keep it, just update letter for safety
-          grid[r][c].letter = letters[i].toUpperCase();
         }
+        // Intersection: letter must match (validated in data)
       }
     }
-    // Set the cell number at the start of the word
     if (grid[w.row] && grid[w.row][w.col]) {
       grid[w.row][w.col].number = w.number;
     }
@@ -121,7 +119,6 @@ function renderClues() {
   const acrossWords = currentPuzzle.words.filter(w => w.direction === 'across');
   const downWords = currentPuzzle.words.filter(w => w.direction === 'down');
 
-  // Sort by number
   acrossWords.sort((a, b) => a.number - b.number);
   downWords.sort((a, b) => a.number - b.number);
 
@@ -251,7 +248,6 @@ function clearHighlights() {
 function highlightWord(startRow, startCol, direction) {
   clearHighlights();
 
-  // Find which word this cell belongs to in the given direction
   const word = currentPuzzle.words.find(w => {
     if (w.direction !== direction) return false;
     if (direction === 'across') {
@@ -263,7 +259,6 @@ function highlightWord(startRow, startCol, direction) {
 
   if (!word) return;
 
-  // Highlight cells
   for (let i = 0; i < word.word.length; i++) {
     const r = word.direction === 'down' ? word.row + i : word.row;
     const c = word.direction === 'across' ? word.col + i : word.col;
@@ -271,7 +266,6 @@ function highlightWord(startRow, startCol, direction) {
     if (input) input.parentElement.classList.add('highlighted');
   }
 
-  // Highlight clue
   const clueItem = document.querySelector(
     `.clue-item[data-direction="${word.direction}"][data-row="${word.row}"][data-col="${word.col}"]`
   );
@@ -291,6 +285,7 @@ function checkAnswers() {
   const size = currentPuzzle.size;
   let allCorrect = true;
   let filledCount = 0;
+  let correctCount = 0;
   let totalWhite = 0;
 
   for (let r = 0; r < size; r++) {
@@ -312,6 +307,7 @@ function checkAnswers() {
       filledCount++;
       if (userVal === grid[r][c].letter) {
         cell.classList.add('correct');
+        correctCount++;
       } else {
         cell.classList.add('wrong');
         allCorrect = false;
@@ -319,12 +315,37 @@ function checkAnswers() {
     }
   }
 
+  // Feedback banner
+  let oldFeedback = document.getElementById('check-feedback');
+  if (oldFeedback) oldFeedback.remove();
+
+  const feedbackDiv = document.createElement('div');
+  feedbackDiv.id = 'check-feedback';
+  feedbackDiv.className = 'feedback-banner';
+
   if (allCorrect && filledCount === totalWhite) {
     onPuzzleComplete();
+    return;
+  } else if (filledCount === 0) {
+    feedbackDiv.classList.add('info');
+    feedbackDiv.textContent = 'Compila almeno qualche casella prima di verificare!';
+    if (typeof AudioManager !== 'undefined') AudioManager.play('wrong');
+  } else {
+    const wrongCount = filledCount - correctCount;
+    const emptyCount = totalWhite - filledCount;
+    feedbackDiv.classList.add(wrongCount > 0 ? 'wrong' : 'info');
+    let msg = `${correctCount} corrette, ${wrongCount} errate`;
+    if (emptyCount > 0) msg += `, ${emptyCount} da completare`;
+    feedbackDiv.textContent = msg;
+    if (wrongCount > 0 && typeof AudioManager !== 'undefined') AudioManager.play('wrong');
+    else if (typeof AudioManager !== 'undefined') AudioManager.play('correct');
   }
+
+  const gridEl = document.getElementById('crossword-grid');
+  gridEl.parentNode.insertBefore(feedbackDiv, gridEl.nextSibling);
 }
 
-function onPuzzleComplete() {
+async function onPuzzleComplete() {
   if (gameComplete) return;
   gameComplete = true;
   stopTimer();
@@ -332,10 +353,39 @@ function onPuzzleComplete() {
   const score = Math.max(100, 1000 - elapsedSeconds * 2);
   const timeStr = formatTime(elapsedSeconds);
 
+  // Play victory
+  if (typeof AudioManager !== 'undefined') AudioManager.play('victory');
+  showCelebration();
+
   document.getElementById('final-score').textContent = score;
   document.getElementById('final-time').textContent = timeStr;
-  showOverlay();
 
+  // Build result modal with feedback
+  const overlay = document.querySelector('.result-overlay');
+  const modal = overlay ? overlay.querySelector('.result-modal') : null;
+
+  if (modal) {
+    modal.querySelectorAll('.result-detail, .login-prompt').forEach(el => el.remove());
+
+    const detailDiv = document.createElement('div');
+    detailDiv.className = 'result-detail';
+    detailDiv.innerHTML = `Cruciverba completato in <strong>${timeStr}</strong>! Tutte le <strong>${currentPuzzle.words.length} parole</strong> sono corrette.`;
+    const actionsEl = modal.querySelector('.result-actions');
+    if (actionsEl) actionsEl.before(detailDiv);
+
+    // Leaderboard position
+    const rankInfo = await getLeaderboardPosition('cruciverba', score);
+    if (rankInfo) {
+      const rankDiv = document.createElement('div');
+      rankDiv.className = 'result-detail';
+      rankDiv.innerHTML = `Sei al <span class="rank">${rankInfo.position}° posto</span> su ${rankInfo.total} giocatori!`;
+      detailDiv.after(rankDiv);
+    }
+
+    showLoginPrompt(modal);
+  }
+
+  showOverlay();
   saveScore('cruciverba', score, elapsedSeconds);
 }
 
@@ -346,7 +396,13 @@ function startTimer() {
   elapsedSeconds = 0;
   timerInterval = setInterval(() => {
     elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+    updateTimerDisplay();
   }, 1000);
+}
+
+function updateTimerDisplay() {
+  const timerEl = document.getElementById('crossword-timer');
+  if (timerEl) timerEl.textContent = formatTime(elapsedSeconds);
 }
 
 function stopTimer() {
@@ -365,10 +421,13 @@ function resetTimer() {
 
 function showOverlay() {
   const overlay = document.querySelector('.result-overlay');
-  if (overlay) overlay.classList.add('visible');
+  if (overlay) overlay.classList.add('show');
 }
 
 function hideOverlay() {
   const overlay = document.querySelector('.result-overlay');
-  if (overlay) overlay.classList.remove('visible');
+  if (overlay) {
+    overlay.classList.remove('show');
+    overlay.classList.remove('visible');
+  }
 }

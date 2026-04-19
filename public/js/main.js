@@ -87,3 +87,60 @@ function shuffleArray(arr) {
   }
   return a;
 }
+
+// Utility: get leaderboard position for a score
+async function getLeaderboardPosition(gameType, score) {
+  try {
+    const res = await fetch(`/api/classifiche/${gameType}`);
+    const data = await res.json();
+    if (!Array.isArray(data)) return null;
+    // Find position (1-based)
+    let pos = 1;
+    for (const entry of data) {
+      if (entry.score > score) pos++;
+      else break;
+    }
+    return { position: pos, total: data.length + 1 };
+  } catch (e) {
+    return null;
+  }
+}
+
+// Utility: show login prompt in a container
+function showLoginPrompt(container) {
+  if (window.currentUser || !container) return;
+  const div = document.createElement('div');
+  div.className = 'login-prompt';
+  div.innerHTML = '<strong>Registrati o fai login</strong> per salvare il tuo punteggio e comparire in classifica! <a href="/login">Accedi qui</a>';
+  container.appendChild(div);
+}
+
+// Utility: show celebration sparkles
+function showCelebration() {
+  const container = document.createElement('div');
+  container.className = 'celebration';
+  document.body.appendChild(container);
+
+  const colors = ['#c9a84c', '#e8d48b', '#d3a625', '#fff', '#740001', '#1a472a'];
+  for (let i = 0; i < 30; i++) {
+    const sparkle = document.createElement('div');
+    sparkle.className = 'sparkle';
+    sparkle.style.left = Math.random() * 100 + '%';
+    sparkle.style.top = Math.random() * 100 + '%';
+    sparkle.style.background = colors[Math.floor(Math.random() * colors.length)];
+    sparkle.style.animationDelay = (Math.random() * 0.8) + 's';
+    sparkle.style.width = sparkle.style.height = (5 + Math.random() * 10) + 'px';
+    container.appendChild(sparkle);
+  }
+
+  setTimeout(() => container.remove(), 2000);
+}
+
+// Utility: score popup animation
+function showScorePopup(text) {
+  const popup = document.createElement('div');
+  popup.className = 'score-popup';
+  popup.textContent = text;
+  document.body.appendChild(popup);
+  setTimeout(() => popup.remove(), 1500);
+}
