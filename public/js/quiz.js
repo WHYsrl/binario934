@@ -58,6 +58,9 @@ function showQuestion() {
     questionText.textContent = q.question;
   }
 
+  // Remove focus from any element (fixes sticky hover on mobile)
+  if (document.activeElement) document.activeElement.blur();
+
   if (optionsContainer) {
     optionsContainer.innerHTML = '';
     q.options.forEach((option, index) => {

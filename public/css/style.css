@@ -515,9 +515,14 @@ body {
   text-align: left;
 }
 
-.quiz-option:hover {
-  border-color: var(--gold);
-  background: rgba(201,168,76,0.1);
+@media (hover: hover) {
+  .quiz-option:hover {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.1);
+  }
+}
+.quiz-option:focus {
+  outline: none;
 }
 
 .quiz-option.correct {
